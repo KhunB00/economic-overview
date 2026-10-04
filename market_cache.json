@@ -19,7 +19,7 @@
   "currency": "CNY",
   "name": "SSE Composite Index",
   "market_time": 1790751634,
-  "fetched_at": "2026-10-04T11:39:26+00:00",
+  "fetched_at": "2026-10-04T11:53:49+00:00",
   "zscore": 0.4344418358262566,
   "hist": {
    "2026-10-04": 3842.1946
@@ -45,7 +45,7 @@
   "currency": "USD",
   "name": "Aluminum Futures,Dec-2026",
   "market_time": 1790968549,
-  "fetched_at": "2026-10-04T11:39:26+00:00",
+  "fetched_at": "2026-10-04T11:53:49+00:00",
   "zscore": 0.43706473390399103,
   "hist": {
    "2026-10-04": 3214.75
@@ -56,25 +56,25 @@
   "ok": true,
   "source": "live",
   "error": null,
-  "last": 85261.31,
+  "last": 85296.97,
   "prev_close": 84763.578125,
-  "pct_1d": 0.587200170179214,
-  "pct_1w": 1.9598573237163075,
-  "pct_1m": 10.962201803221937,
-  "pct_ytd": -2.5683330164010254,
-  "abs_1d": 497.7318749999977,
-  "abs_1w": 1638.8803124999977,
-  "abs_1m": 8423.153749999998,
-  "abs_ytd": -2247.5181250000023,
+  "pct_1d": 0.6292701261541911,
+  "pct_1w": 2.0025013848052664,
+  "pct_1m": 11.008611037566386,
+  "pct_ytd": -2.5275828420882496,
+  "abs_1d": 533.3918750000012,
+  "abs_1w": 1674.5403125000012,
+  "abs_1m": 8458.813750000001,
+  "abs_ytd": -2211.858124999999,
   "n_points": 366,
-  "sigma_20d": 2.2529580676940886,
+  "sigma_20d": 2.253103661643423,
   "currency": "USD",
   "name": "Bitcoin USD",
-  "market_time": 1791113961,
-  "fetched_at": "2026-10-04T11:39:26+00:00",
-  "zscore": 0.2606351971655716,
+  "market_time": 1791114826,
+  "fetched_at": "2026-10-04T11:53:49+00:00",
+  "zscore": 0.279290357060269,
   "hist": {
-   "2026-10-04": 85261.31
+   "2026-10-04": 85296.97
   }
  },
  "BZ=F": {
@@ -97,7 +97,7 @@
   "currency": "USD",
   "name": "Brent Crude Oil Last Day Financ",
   "market_time": 1790974792,
-  "fetched_at": "2026-10-04T11:39:26+00:00",
+  "fetched_at": "2026-10-04T11:53:49+00:00",
   "zscore": -0.022246058713022203,
   "hist": {
    "2026-10-04": 102.25
@@ -123,7 +123,7 @@
   "currency": "USD",
   "name": "Crude Oil Nov 26",
   "market_time": 1790974800,
-  "fetched_at": "2026-10-04T11:39:26+00:00",
+  "fetched_at": "2026-10-04T11:53:49+00:00",
   "zscore": -0.646507735035039,
   "hist": {
    "2026-10-04": 91.11
@@ -149,7 +149,7 @@
   "currency": "CNY",
   "name": "USD/CNY",
   "market_time": 1791084657,
-  "fetched_at": "2026-10-04T11:39:26+00:00",
+  "fetched_at": "2026-10-04T11:53:49+00:00",
   "zscore": 0.06724775297873152,
   "hist": {
    "2026-10-04": 6.7048
@@ -175,7 +175,7 @@
   "currency": "USD",
   "name": "ICE US Dollar Index - Index - C",
   "market_time": 1790974799,
-  "fetched_at": "2026-10-04T11:39:26+00:00",
+  "fetched_at": "2026-10-04T11:53:49+00:00",
   "zscore": -0.6365537698259841,
   "hist": {
    "2026-10-04": 101.924
@@ -201,7 +201,7 @@
   "currency": "USD",
   "name": "iShares MSCI Emerging Index Fun",
   "market_time": 1790971200,
-  "fetched_at": "2026-10-04T11:39:26+00:00",
+  "fetched_at": "2026-10-04T11:53:49+00:00",
   "zscore": 0.9143758795543218,
   "hist": {
    "2026-10-04": 67.67
@@ -227,7 +227,7 @@
   "currency": "USD",
   "name": "EUR/USD",
   "market_time": 1790976587,
-  "fetched_at": "2026-10-04T11:39:26+00:00",
+  "fetched_at": "2026-10-04T11:53:49+00:00",
   "zscore": 0.2703055831276122,
   "hist": {
    "2026-10-04": 1.1257
@@ -253,7 +253,7 @@
   "currency": "USD",
   "name": "Gold Dec 26",
   "market_time": 1790974798,
-  "fetched_at": "2026-10-04T11:39:26+00:00",
+  "fetched_at": "2026-10-04T11:53:49+00:00",
   "zscore": -0.8982787298124312,
   "hist": {
    "2026-10-04": 4162.3
@@ -279,7 +279,7 @@
   "currency": "USD",
   "name": "Copper Dec 26",
   "market_time": 1790974796,
-  "fetched_at": "2026-10-04T11:39:26+00:00",
+  "fetched_at": "2026-10-04T11:53:49+00:00",
   "zscore": 0.6202953307339952,
   "hist": {
    "2026-10-04": 6.549
@@ -305,7 +305,7 @@
   "currency": "USD",
   "name": "iShares iBoxx $ High Yield Corp",
   "market_time": 1790971200,
-  "fetched_at": "2026-10-04T11:39:26+00:00",
+  "fetched_at": "2026-10-04T11:53:49+00:00",
   "zscore": 0.053475325684633826,
   "hist": {
    "2026-10-04": 76.91
@@ -331,7 +331,7 @@
   "currency": "INR",
   "name": "USD/INR",
   "market_time": 1791084624,
-  "fetched_at": "2026-10-04T11:39:26+00:00",
+  "fetched_at": "2026-10-04T11:53:49+00:00",
   "zscore": 0.21900320431393364,
   "hist": {
    "2026-10-04": 96.3
@@ -357,7 +357,7 @@
   "currency": "JPY",
   "name": "USD/JPY",
   "market_time": 1791087696,
-  "fetched_at": "2026-10-04T11:39:26+00:00",
+  "fetched_at": "2026-10-04T11:53:49+00:00",
   "zscore": -0.11321648212438128,
   "hist": {
    "2026-10-04": 157.83
@@ -383,7 +383,7 @@
   "currency": "KRW",
   "name": "USD/KRW",
   "market_time": 1790975891,
-  "fetched_at": "2026-10-04T11:39:26+00:00",
+  "fetched_at": "2026-10-04T11:53:49+00:00",
   "zscore": -1.7058707772479729,
   "hist": {
    "2026-10-04": 1342.51
@@ -409,7 +409,7 @@
   "currency": "USD",
   "name": "iShares iBoxx $ Investment Grad",
   "market_time": 1790971200,
-  "fetched_at": "2026-10-04T11:39:26+00:00",
+  "fetched_at": "2026-10-04T11:53:49+00:00",
   "zscore": -0.45775493421583086,
   "hist": {
    "2026-10-04": 101.83
@@ -435,7 +435,7 @@
   "currency": "USD",
   "name": "Natural Gas Nov 26",
   "market_time": 1790974799,
-  "fetched_at": "2026-10-04T11:39:26+00:00",
+  "fetched_at": "2026-10-04T11:53:49+00:00",
   "zscore": 0.7158410448017358,
   "hist": {
    "2026-10-04": 3.035
@@ -461,7 +461,7 @@
   "currency": "USD",
   "name": "Silver Dec 26",
   "market_time": 1790974795,
-  "fetched_at": "2026-10-04T11:39:26+00:00",
+  "fetched_at": "2026-10-04T11:53:49+00:00",
   "zscore": -0.24913873609807197,
   "hist": {
    "2026-10-04": 60.415
@@ -487,7 +487,7 @@
   "currency": "THB",
   "name": "USD/THB",
   "market_time": 1790975891,
-  "fetched_at": "2026-10-04T11:39:26+00:00",
+  "fetched_at": "2026-10-04T11:53:49+00:00",
   "zscore": -0.9060609916905169,
   "hist": {
    "2026-10-04": 33.53
@@ -513,7 +513,7 @@
   "currency": "USD",
   "name": "iShares MSCI Thailand ETF",
   "market_time": 1790971200,
-  "fetched_at": "2026-10-04T11:39:26+00:00",
+  "fetched_at": "2026-10-04T11:53:49+00:00",
   "zscore": 0.9803222801095373,
   "hist": {
    "2026-10-04": 71.62
@@ -539,7 +539,7 @@
   "currency": "USD",
   "name": "iShares 20+ Year Treasury Bond ",
   "market_time": 1790971200,
-  "fetched_at": "2026-10-04T11:39:26+00:00",
+  "fetched_at": "2026-10-04T11:53:49+00:00",
   "zscore": -0.4571742386861219,
   "hist": {
    "2026-10-04": 77.48
@@ -565,7 +565,7 @@
   "currency": "USX",
   "name": "Corn Futures,Dec-2026",
   "market_time": 1790965199,
-  "fetched_at": "2026-10-04T11:39:26+00:00",
+  "fetched_at": "2026-10-04T11:53:49+00:00",
   "zscore": -0.5240312561792764,
   "hist": {
    "2026-10-04": 497.75
@@ -591,7 +591,7 @@
   "currency": "USD",
   "name": "10-Year T-Note Futures,Dec-2026",
   "market_time": 1790974795,
-  "fetched_at": "2026-10-04T11:39:26+00:00",
+  "fetched_at": "2026-10-04T11:53:49+00:00",
   "zscore": -0.9280712020691437,
   "hist": {
    "2026-10-04": 104.35938
@@ -617,7 +617,7 @@
   "currency": "USD",
   "name": "30 Day Federal Funds Futures,No",
   "market_time": 1790974732,
-  "fetched_at": "2026-10-04T11:39:26+00:00",
+  "fetched_at": "2026-10-04T11:53:49+00:00",
   "zscore": -1.4319332204210355,
   "hist": {
    "2026-10-04": 96.07
@@ -643,7 +643,7 @@
   "currency": "USX",
   "name": "Soybean Futures,Nov-2026",
   "market_time": 1790965198,
-  "fetched_at": "2026-10-04T11:39:26+00:00",
+  "fetched_at": "2026-10-04T11:53:49+00:00",
   "zscore": -0.35281314954320836,
   "hist": {
    "2026-10-04": 1278.25
@@ -669,7 +669,7 @@
   "currency": "USX",
   "name": "Chicago SRW Wheat Futures,Dec-2",
   "market_time": 1790965197,
-  "fetched_at": "2026-10-04T11:39:27+00:00",
+  "fetched_at": "2026-10-04T11:53:49+00:00",
   "zscore": 0.021643953326568748,
   "hist": {
    "2026-10-04": 683.0
@@ -695,7 +695,7 @@
   "currency": "AUD",
   "name": "S&P/ASX 200 [XJO]",
   "market_time": 1790924534,
-  "fetched_at": "2026-10-04T11:39:27+00:00",
+  "fetched_at": "2026-10-04T11:53:49+00:00",
   "zscore": 1.1045817799887996,
   "hist": {
    "2026-10-04": 8682.1
@@ -721,7 +721,7 @@
   "currency": "USD",
   "name": "Dow Jones Industrial Average",
   "market_time": 1790974817,
-  "fetched_at": "2026-10-04T11:39:27+00:00",
+  "fetched_at": "2026-10-04T11:53:49+00:00",
   "zscore": 0.7419499130357627,
   "hist": {
    "2026-10-04": 51176.96
@@ -747,7 +747,7 @@
   "currency": "GBP",
   "name": "FTSE 100",
   "market_time": 1790955329,
-  "fetched_at": "2026-10-04T11:39:27+00:00",
+  "fetched_at": "2026-10-04T11:53:49+00:00",
   "zscore": 0.4562273802201105,
   "hist": {
    "2026-10-04": 10461.95
@@ -773,7 +773,7 @@
   "currency": "USD",
   "name": "Treasury Yield 5 Years",
   "market_time": 1790967595,
-  "fetched_at": "2026-10-04T11:39:27+00:00",
+  "fetched_at": "2026-10-04T11:53:49+00:00",
   "zscore": 0.8981195518233697,
   "hist": {
    "2026-10-04": 5.055
@@ -799,7 +799,7 @@
   "currency": "EUR",
   "name": "DAX                           P",
   "market_time": 1790956800,
-  "fetched_at": "2026-10-04T11:39:27+00:00",
+  "fetched_at": "2026-10-04T11:53:49+00:00",
   "zscore": 1.4378763184019034,
   "hist": {
    "2026-10-04": 25231.2
@@ -825,7 +825,7 @@
   "currency": "USD",
   "name": "S&P 500",
   "market_time": 1790974753,
-  "fetched_at": "2026-10-04T11:39:27+00:00",
+  "fetched_at": "2026-10-04T11:53:49+00:00",
   "zscore": 1.125922743897829,
   "hist": {
    "2026-10-04": 7722.72
@@ -851,7 +851,7 @@
   "currency": "USD",
   "name": "CBOE Gold Volatility Index",
   "market_time": 1790971321,
-  "fetched_at": "2026-10-04T11:39:27+00:00",
+  "fetched_at": "2026-10-04T11:53:49+00:00",
   "zscore": -0.09097992618217075,
   "hist": {
    "2026-10-04": 23.23
@@ -877,7 +877,7 @@
   "currency": "HKD",
   "name": "HANG SENG INDEX",
   "market_time": 1790928512,
-  "fetched_at": "2026-10-04T11:39:27+00:00",
+  "fetched_at": "2026-10-04T11:53:50+00:00",
   "zscore": -2.707469599487792,
   "hist": {
    "2026-10-04": 23972.29
@@ -903,7 +903,7 @@
   "currency": "USD",
   "name": "13 WEEK TREASURY BILL",
   "market_time": 1790967595,
-  "fetched_at": "2026-10-04T11:39:27+00:00",
+  "fetched_at": "2026-10-04T11:53:50+00:00",
   "zscore": 0.4238424892021112,
   "hist": {
    "2026-10-04": 3.993
@@ -929,7 +929,7 @@
   "currency": "USD",
   "name": "NASDAQ Composite",
   "market_time": 1790975759,
-  "fetched_at": "2026-10-04T11:39:27+00:00",
+  "fetched_at": "2026-10-04T11:53:50+00:00",
   "zscore": 1.3478300700935886,
   "hist": {
    "2026-10-04": 27190.863
@@ -955,7 +955,7 @@
   "currency": "KRW",
   "name": "KOSPI Composite Index",
   "market_time": 1790939140,
-  "fetched_at": "2026-10-04T11:39:27+00:00",
+  "fetched_at": "2026-10-04T11:53:50+00:00",
   "zscore": 0.2559392033355611,
   "hist": {
    "2026-10-04": 7003.74
@@ -981,7 +981,7 @@
   "currency": "JPY",
   "name": "Nikkei 225",
   "market_time": 1790923503,
-  "fetched_at": "2026-10-04T11:39:27+00:00",
+  "fetched_at": "2026-10-04T11:53:50+00:00",
   "zscore": -0.6294831759083452,
   "hist": {
    "2026-10-04": 68309.46
@@ -1007,7 +1007,7 @@
   "currency": "INR",
   "name": "NIFTY 50",
   "market_time": 1790848872,
-  "fetched_at": "2026-10-04T11:39:27+00:00",
+  "fetched_at": "2026-10-04T11:53:50+00:00",
   "zscore": -1.3534497467604893,
   "hist": {
    "2026-10-04": 22421.95
@@ -1033,7 +1033,7 @@
   "currency": "USD",
   "name": "CBOE Crude Oil Volatility Index",
   "market_time": 1790971321,
-  "fetched_at": "2026-10-04T11:39:27+00:00",
+  "fetched_at": "2026-10-04T11:53:50+00:00",
   "zscore": -0.2086769297256752,
   "hist": {
    "2026-10-04": 51.0
@@ -1059,7 +1059,7 @@
   "currency": "USD",
   "name": "Russell 2000",
   "market_time": 1790973015,
-  "fetched_at": "2026-10-04T11:39:27+00:00",
+  "fetched_at": "2026-10-04T11:53:50+00:00",
   "zscore": 1.3466544673689398,
   "hist": {
    "2026-10-04": 2832.895
@@ -1085,7 +1085,7 @@
   "currency": "THB",
   "name": "SET_SET Index",
   "market_time": 1790934231,
-  "fetched_at": "2026-10-04T11:39:27+00:00",
+  "fetched_at": "2026-10-04T11:53:50+00:00",
   "hist": {
    "2026-10-04": 1571.62
   }
@@ -1110,7 +1110,7 @@
   "currency": "EUR",
   "name": "EURO STOXX 50                 I",
   "market_time": 1790956800,
-  "fetched_at": "2026-10-04T11:39:27+00:00",
+  "fetched_at": "2026-10-04T11:53:50+00:00",
   "zscore": 1.1899482473509864,
   "hist": {
    "2026-10-04": 6238.5
@@ -1136,7 +1136,7 @@
   "currency": "USD",
   "name": "10-Year Bond",
   "market_time": 1790967595,
-  "fetched_at": "2026-10-04T11:39:27+00:00",
+  "fetched_at": "2026-10-04T11:53:50+00:00",
   "zscore": 0.7962825671841038,
   "hist": {
    "2026-10-04": 5.277
@@ -1162,7 +1162,7 @@
   "currency": "USD",
   "name": "Treasury Yield 30 Years",
   "market_time": 1790967595,
-  "fetched_at": "2026-10-04T11:39:27+00:00",
+  "fetched_at": "2026-10-04T11:53:50+00:00",
   "zscore": 0.6554673635360745,
   "hist": {
    "2026-10-04": 5.63
@@ -1188,7 +1188,7 @@
   "currency": "USD",
   "name": "CBOE Volatility Index",
   "market_time": 1790972101,
-  "fetched_at": "2026-10-04T11:39:27+00:00",
+  "fetched_at": "2026-10-04T11:53:50+00:00",
   "zscore": -1.0717342494390494,
   "hist": {
    "2026-10-04": 15.31
@@ -1214,7 +1214,7 @@
   "currency": "USD",
   "name": "CBOE VIX VOLATILITY INDEX",
   "market_time": 1790972101,
-  "fetched_at": "2026-10-04T11:39:27+00:00",
+  "fetched_at": "2026-10-04T11:53:50+00:00",
   "zscore": -1.0933080629466418,
   "hist": {
    "2026-10-04": 87.02
