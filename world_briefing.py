@@ -125,6 +125,7 @@ CALENDAR_RELEASES = [
     (53, "US GDP"),
     (9, "US retail sales"),
     (46, "US producer prices (PPI)"),
+    (180, "US jobless claims (weekly)"),
 ]
 RELEASE_TIME_ET = dt.time(8, 30)
 
@@ -185,6 +186,13 @@ TICKERS = {
         ("KRW=X", "USD/KRW", "price"),
         ("INR=X", "USD/INR", "price"),
         ("THB=X", "USD/THB", "price"),
+        # The cleanest war hedge in FX — it bids before headlines land.
+        ("CHF=X", "USD/CHF (Swiss franc, safe haven)", "price"),
+        # Emerging markets: where capital flight shows up first.
+        ("TRY=X", "USD/TRY (Turkey)", "price"),
+        ("ZAR=X", "USD/ZAR (South Africa)", "price"),
+        ("BRL=X", "USD/BRL (Brazil)", "price"),
+        ("MXN=X", "USD/MXN (Mexico)", "price"),
     ],
     "energy": [
         ("CL=F", "WTI crude", "price"),
@@ -223,7 +231,12 @@ ALL_SYMBOLS = sorted({sym for grp in TICKERS.values() for sym, _, _ in grp})
 
 FRED_RATES = [
     ("DFII10", "Real 10-year yield (inflation-adjusted)", "level", "%"),
+    ("DFII5", "Real 5-year yield", "level", "%"),
     ("T10YIE", "10-year breakeven inflation (market expectation)", "level", "%"),
+    ("T5YIE", "5-year breakeven inflation", "level", "%"),
+    # The measure the Fed itself cites: long-run expectations with near-term
+    # energy noise stripped out. If this breaks higher, nothing else matters.
+    ("T5YIFR", "5y5y forward inflation (are expectations anchored?)", "level", "%"),
     ("DGS2", "US 2-year yield", "level", "%"),
     ("T10Y2Y", "2s10s curve slope (10y minus 2y)", "level", "%"),
     ("BAMLH0A0HYM2", "High-yield credit spread", "level", "%"),
@@ -232,6 +245,9 @@ FRED_RATES = [
 ]
 
 FRED_DATA = [
+    # Weekly, so it moves between the monthly releases — the earliest honest
+    # read on the labour market.
+    ("ICSA", "US jobless claims (weekly)", "thousands", "k"),
     ("CPIAUCSL", "US CPI inflation", "yoy", "%"),
     ("CPILFESL", "US core CPI inflation", "yoy", "%"),
     ("PCEPILFE", "US core PCE (the Fed's preferred gauge)", "yoy", "%"),
@@ -240,6 +256,17 @@ FRED_DATA = [
     ("RSAFS", "US retail sales", "yoy", "%"),
     ("INDPRO", "US industrial production", "yoy", "%"),
     ("GDPC1", "US real GDP", "yoy", "%"),
+]
+
+# Liquidity and financial conditions. Prices tell you what happened; these tell
+# you how easy money is, which is the regime that decides whether a rally holds.
+FRED_LIQUIDITY = [
+    ("NFCI", "Financial conditions (0 = average; + is tight, - is loose)", "level", ""),
+    ("STLFSI4", "Financial stress (0 = normal)", "level", ""),
+    ("WALCL", "Fed balance sheet", "trillions", "T"),
+    ("RRPONTSYD", "Fed reverse repo (cash parked at the Fed)", "level", "B"),
+    ("SOFR", "Overnight funding rate", "level", "%"),
+    ("BAMLH0A3HYC", "CCC credit spread (riskiest borrowers)", "level", "%"),
 ]
 
 # ----------------------------------------------------------------------------
@@ -321,6 +348,23 @@ FEEDS = {
          "window_h": 30, "paywall": "none"},
         {"name": "Thailand economy wires", "url": "https://news.google.com/rss/search?q=when:2d+Thailand+economy+OR+baht&hl=en-US&gl=US&ceid=US:en",
          "window_h": 48, "paywall": "none"},
+    ],
+    "Geopolitics & supply": [
+        {"name": "Sanctions & export controls",
+         "url": "https://news.google.com/rss/search?q=when:2d+sanctions+OR+%22export+controls%22+OR+embargo&hl=en-US&gl=US&ceid=US:en",
+         "window_h": 48, "paywall": "none"},
+        {"name": "Supply chains & shipping",
+         "url": "https://news.google.com/rss/search?q=when:2d+%22supply+chain%22+OR+shipping+OR+%22Red+Sea%22+OR+%22Suez%22+OR+%22Hormuz%22&hl=en-US&gl=US&ceid=US:en",
+         "window_h": 48, "paywall": "none"},
+        {"name": "Conflict & security",
+         "url": "https://news.google.com/rss/search?q=when:2d+(war+OR+strike+OR+attack)+(oil+OR+trade+OR+economy+OR+shipping)&hl=en-US&gl=US&ceid=US:en",
+         "window_h": 48, "paywall": "none"},
+        {"name": "Tariffs & trade policy",
+         "url": "https://news.google.com/rss/search?q=when:2d+tariffs+OR+%22trade+war%22+OR+%22trade+deal%22&hl=en-US&gl=US&ceid=US:en",
+         "window_h": 48, "paywall": "none"},
+        {"name": "Central bank gold buying",
+         "url": "https://news.google.com/rss/search?q=when:7d+%22central+bank%22+gold+reserves+OR+bullion&hl=en-US&gl=US&ceid=US:en",
+         "window_h": 168, "paywall": "none"},
     ],
 }
 
@@ -860,14 +904,42 @@ def fetch_fred_series(series_id: str, transform: str, key: str) -> dict:
                 t2 = dt.date.fromisoformat(d2) - dt.timedelta(days=365)
                 b2 = min(clean, key=lambda kv: abs((dt.date.fromisoformat(kv[0]) - t2).days))
                 out["prev"] = (v2 / b2[1] - 1.0) * 100.0 if b2[1] else None
+        elif transform == "thousands":
+            out["value"] = value / 1000.0
+            out["prev"] = clean[1][1] / 1000.0 if len(clean) > 1 else None
+        elif transform == "trillions":
+            out["value"] = value / 1_000_000.0   # FRED reports millions
+            out["prev"] = clean[1][1] / 1_000_000.0 if len(clean) > 1 else None
         elif transform == "chg":
             out["value"] = value - clean[1][1] if len(clean) > 1 else None
             out["prev"] = clean[1][1] - clean[2][1] if len(clean) > 2 else None
+        # How old is this reading, allowing for how often it is published?
+        try:
+            age_days = (dt.date.today() - dt.date.fromisoformat(date)).days
+            out["age_days"] = age_days
+            limit = STALE_LIMIT_DAYS.get(transform_frequency(age_days), 120)
+            out["stale"] = age_days > limit
+        except Exception:
+            out["stale"] = False
+
         out["fetched_at"] = dt.datetime.now(UTC).isoformat(timespec="seconds")
         return out
     except Exception as exc:
         out["error"] = f"{type(exc).__name__}: {exc}"
         return out
+
+
+def transform_frequency(age_days: int) -> str:
+    """Rough guess at a series' publication rhythm from how old its last point is."""
+    if age_days <= 10:
+        return "daily"
+    if age_days <= 45:
+        return "monthly"
+    return "quarterly"
+
+
+# A reading older than this is almost certainly a dead series, not news.
+STALE_LIMIT_DAYS = {"daily": 14, "monthly": 75, "quarterly": 210}
 
 
 def fetch_fred_block(spec: list[tuple], key: str | None) -> list[dict]:
@@ -938,6 +1010,131 @@ def fetch_cftc() -> list[dict]:
         except Exception:
             continue
     return rows
+
+
+
+# ============================================================================
+# RELATIONSHIPS — is gold still trading the way it normally does?
+#
+# Gold usually moves inversely to real yields and to the dollar. When those
+# relationships break, the usual playbook stops working and something
+# structural is going on (central-bank buying, debasement fear, a squeeze).
+# Showing the correlation is what turns a price into an explanation.
+# ============================================================================
+
+CORRELATION_WINDOW = 60  # trading days
+
+
+def fetch_price_series(symbol: str) -> dict:
+    """Daily closes as {date: close}. Separate from fetch_quote, which summarises."""
+    try:
+        resp = http_get(YAHOO_CHART.format(requests.utils.quote(symbol, safe="")),
+                        params={"range": "1y", "interval": "1d"})
+        if resp.status_code != 200:
+            return {}
+        res = (resp.json().get("chart") or {}).get("result")
+        if not res:
+            return {}
+        stamps = res[0].get("timestamp") or []
+        closes = ((res[0].get("indicators") or {}).get("quote") or [{}])[0].get("close") or []
+        return {dt.datetime.fromtimestamp(t, UTC).date().isoformat(): float(c)
+                for t, c in zip(stamps, closes) if c is not None}
+    except Exception:
+        return {}
+
+
+def fetch_fred_series_full(series_id: str, key: str) -> dict:
+    """Daily observations as {date: value}."""
+    try:
+        resp = http_get("https://api.stlouisfed.org/fred/series/observations",
+                        params={"series_id": series_id, "api_key": key,
+                                "file_type": "json", "sort_order": "desc", "limit": 400})
+        if resp.status_code != 200:
+            return {}
+        return {o["date"]: float(o["value"]) for o in resp.json().get("observations", [])
+                if o.get("value") not in (".", "", None)}
+    except Exception:
+        return {}
+
+
+def correlation(xs: list[float], ys: list[float]) -> float | None:
+    """Pearson correlation. Returns None when there is not enough to say."""
+    n = len(xs)
+    if n < 20:
+        return None
+    mx, my = sum(xs) / n, sum(ys) / n
+    cov = sum((a - mx) * (b - my) for a, b in zip(xs, ys))
+    vx = math.sqrt(sum((a - mx) ** 2 for a in xs))
+    vy = math.sqrt(sum((b - my) ** 2 for b in ys))
+    if vx == 0 or vy == 0:
+        return None
+    return cov / (vx * vy)
+
+
+def daily_changes(series: dict, dates: list[str]) -> list[float]:
+    """Day-on-day change for the given dates. Correlating levels would be junk."""
+    out = []
+    for prev, cur in zip(dates, dates[1:]):
+        a, b = series.get(prev), series.get(cur)
+        if a is None or b is None or a == 0:
+            out.append(None)
+        else:
+            out.append(b - a)
+    return out
+
+
+def build_relationships(key: str | None) -> list[dict]:
+    """Gold's rolling correlation with the things that are supposed to drive it."""
+    gold = fetch_price_series("GC=F")
+    if not gold:
+        return []
+
+    others = {"Real 10-year yield": fetch_fred_series_full("DFII10", key) if key else {},
+              "Dollar index (DXY)": fetch_price_series("DX-Y.NYB"),
+              "US 10-year yield": fetch_price_series("^TNX"),
+              "Silver": fetch_price_series("SI=F")}
+
+    rows = []
+    for label, series in others.items():
+        if not series:
+            continue
+        shared = sorted(set(gold) & set(series))[-(CORRELATION_WINDOW + 1):]
+        if len(shared) < 25:
+            continue
+        g = daily_changes(gold, shared)
+        o = daily_changes(series, shared)
+        pairs = [(a, b) for a, b in zip(g, o) if a is not None and b is not None]
+        if len(pairs) < 20:
+            continue
+        corr = correlation([a for a, _ in pairs], [b for _, b in pairs])
+        if corr is None:
+            continue
+        rows.append({"label": label, "corr": corr, "days": len(pairs),
+                     "reading": describe_correlation(label, corr)})
+    return rows
+
+
+def describe_correlation(label: str, c: float) -> str:
+    """Say in plain words what the number means for someone learning."""
+    strength = ("strongly" if abs(c) >= 0.5 else
+                "moderately" if abs(c) >= 0.25 else "barely")
+    direction = "with" if c > 0 else "against"
+
+    if "yield" in label.lower() or "Dollar" in label:
+        # These normally move opposite to gold.
+        if c <= -0.25:
+            return f"Normal: gold is moving {strength} {direction} it, as textbook says."
+        if c >= 0.25:
+            return ("Unusual: gold is rising WITH it, which the textbook says "
+                    "should not happen. Often a sign of central-bank buying or "
+                    "debasement fear rather than ordinary rate trading.")
+        return "Relationship has gone quiet — gold is being driven by something else."
+    if "Silver" in label:
+        if c >= 0.5:
+            return "Normal: the precious metals complex is moving together."
+        return "Gold and silver have decoupled — usually means a gold-specific story."
+    return ""
+
 
 
 # ============================================================================
@@ -1468,6 +1665,9 @@ footer p{margin:5px 0}
 .kv div{padding:9px 11px;background:var(--bg);border:1px solid var(--line);border-radius:8px}
 .kv .k{font-size:.71rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
 .kv .v{font:600 1rem var(--mono);font-variant-numeric:tabular-nums;margin-top:2px}
+.corrbar{display:inline-block;width:70px;height:7px;border-radius:4px;
+  background:var(--line);overflow:hidden;vertical-align:middle}
+.corrbar i{display:block;height:100%;background:var(--accent)}
 .hide{display:none !important}
 #stale{display:none;margin:0 0 20px;padding:13px 16px;border-radius:10px;
   border:1px solid var(--warn);background:var(--warn-soft);color:var(--ink)}
@@ -1773,18 +1973,40 @@ def build_html(data: dict, args, fred_available: bool) -> str:
                            f'<span class="stale">{esc(r.get("error") or "no value")}'
                            f'</span></td><td class="v"></td></tr>')
                 continue
-            unit = "%" if r["unit"] == "%" else ""
-            val = f'{r["value"]:,.2f}{unit}' if r["unit"] == "%" else fmt_num(r["value"], 0) + "k"
+            u = r["unit"]
+            if u == "%":
+                val = f'{r["value"]:,.2f}%'
+            elif u == "k":
+                val = f'{r["value"]:,.0f}k'
+            elif u == "T":
+                val = f'${r["value"]:,.2f}T'
+            elif u == "B":
+                val = f'${r["value"]:,.0f}B'
+            else:
+                val = f'{r["value"]:,.2f}'
+
             prev = r.get("prev")
             if prev is None:
                 delta, cls = "n/a", "flat"
             else:
                 d = r["value"] - prev
-                # Match the unit of the value beside it: percentage points for
-                # rates, thousands of jobs for payrolls.
-                delta = f"{d:+.2f}" if r["unit"] == "%" else f"{d:+,.0f}k"
+                # Match the unit of the value beside it.
+                if u in ("%", ""):
+                    delta = f"{d:+.2f}"
+                elif u == "k":
+                    delta = f"{d:+,.0f}k"
+                elif u == "T":
+                    # A weekly balance-sheet move is billions, not trillions —
+                    # "-0.00T" says nothing.
+                    delta = f"{d * 1000:+,.0f}B"
+                else:
+                    delta = f"{d:+,.0f}B"
                 cls = pct_class(d)
-            out.append(f'<tr><td>{esc(r["label"])}</td><td class="v">{val}</td>'
+
+            # A series that quietly stopped updating must never look current.
+            flag = (f'<span class="stale">series stale &mdash; '
+                    f'{r.get("age_days", "?")}d old</span>') if r.get("stale") else ""
+            out.append(f'<tr><td>{esc(r["label"])}{flag}</td><td class="v">{val}</td>'
                        f'<td class="v {cls}">{delta}</td>'
                        f'<td class="v">{esc(r.get("date", ""))}</td></tr>')
         return "".join(out)
@@ -1815,6 +2037,48 @@ def build_html(data: dict, args, fred_available: bool) -> str:
             '<code>echo "YOUR_KEY" &gt; fred_key.txt</code><br>'
             'This unlocks real yields (the main gold driver), breakeven inflation, '
             'credit spreads and the US data board.</p></div>')
+
+    # ---- Tier 2: liquidity & conditions ---------------------------------
+    liquidity_html = ""
+    if data.get("fred_liquidity"):
+        liquidity_html = (
+            '<div class="card"><h2>Liquidity &amp; financial conditions</h2>'
+            '<h3>Prices tell you what happened; these tell you how easy money is '
+            '&mdash; the regime that decides whether a rally holds. Negative '
+            'financial-conditions numbers mean looser than average.</h3>'
+            '<div class="tscroll"><table><thead><tr><th>Measure</th><th>Latest</th>'
+            '<th>Change</th><th>As of</th></tr></thead><tbody>'
+            + fred_rows(data["fred_liquidity"]) +
+            '</tbody></table></div></div>')
+
+    # ---- Tier 2: is gold behaving normally? -----------------------------
+    rel = data.get("relationships") or []
+    rel_html = ""
+    if rel:
+        rows = []
+        for r in rel:
+            c = r["corr"]
+            # Colour by whether the relationship is behaving as expected, not by
+            # the sign of the number.
+            expected_negative = ("yield" in r["label"].lower() or "Dollar" in r["label"])
+            normal = (c <= -0.25) if expected_negative else (c >= 0.5)
+            cls = "up" if normal else ("down" if abs(c) >= 0.25 else "flat")
+            bar = int(abs(c) * 100)
+            rows.append(
+                f'<tr><td>Gold vs {esc(r["label"])}</td>'
+                f'<td class="v {cls}">{c:+.2f}</td>'
+                f'<td><span class="corrbar"><i style="width:{bar}%"></i></span></td>'
+                f'<td class="note">{esc(r["reading"])}</td></tr>')
+        rel_html = (
+            '<div class="card"><h2>Is gold behaving normally?</h2>'
+            f'<h3>How closely gold has moved with each driver over the last '
+            f'{CORRELATION_WINDOW} trading days. &minus;1.00 means they move exactly '
+            'opposite, +1.00 exactly together, 0.00 means no relationship. Gold is '
+            '<em>supposed</em> to move against real yields and the dollar &mdash; when '
+            'it stops, that itself is the story.</h3>'
+            '<div class="tscroll"><table><thead><tr><th>Relationship</th>'
+            '<th>Correlation</th><th>Strength</th><th>What it means</th></tr></thead>'
+            f'<tbody>{"".join(rows)}</tbody></table></div></div>')
 
     # ---- Tier 2: CFTC positioning ---------------------------------------
     cftc = data.get("cftc") or []
@@ -1964,10 +2228,12 @@ def build_html(data: dict, args, fred_available: bool) -> str:
     <h3>Fed funds futures show the policy rate the market expects, derived from
     the futures price</h3>
     {render_table('rates', quotes)}</div>
+  {liquidity_html}
   <div class="card"><h2>Currencies</h2>{render_table('fx', quotes)}</div>
   <div class="card"><h2>Energy</h2>{render_table('energy', quotes)}</div>
   {curve_html}
   <div class="card"><h2>Commodities</h2>{render_table('commodities', quotes)}</div>
+  {rel_html}
   {thai_html}
   <div class="card"><h2>Risk appetite &amp; volatility</h2>
     <h3>When these rise together, investors are getting defensive</h3>
@@ -2044,6 +2310,17 @@ def main() -> int:
             "fred_data": payload["fred_data"], "cftc": payload["cftc"],
             "failed": payload["failed"], "ok_feeds": payload["ok_feeds"],
             "seen_links": [], "unusual": unusual_moves(payload["quotes"]),
+            "fred_liquidity": [{"id": sid, "ok": True, "label": lbl, "unit": un,
+                                "value": v, "prev": v * 0.98, "date": "2026-10-02"}
+                               for (sid, lbl, _, un), v in zip(
+                                   FRED_LIQUIDITY, [-0.42, -0.15, 6.8, 118.0, 4.08, 7.4])],
+            "relationships": [
+                {"label": "Real 10-year yield", "corr": -0.61, "days": 59,
+                 "reading": "Normal: gold is moving strongly against it, as textbook says."},
+                {"label": "Dollar index (DXY)", "corr": -0.38, "days": 59,
+                 "reading": "Normal: gold is moving moderately against it, as textbook says."},
+                {"label": "Silver", "corr": 0.74, "days": 59,
+                 "reading": "Normal: the precious metals complex is moving together."}],
             "calendar": [
                 {"date": (dt.date.today() + dt.timedelta(days=3)).isoformat(),
                  "time_note": "19:30 BKK", "label": "US inflation (CPI)"},
@@ -2077,6 +2354,14 @@ def main() -> int:
             fred_rates, fred_data = [], []
             print("  FRED: skipped (no key — see fred_key.txt in the header notes)")
 
+        print("Fetching liquidity & conditions...")
+        fred_liquidity = fetch_fred_block(FRED_LIQUIDITY, key) if key else []
+        print(f"  liquidity: {sum(1 for r in fred_liquidity if r.get('ok'))}/{len(FRED_LIQUIDITY)}")
+
+        print("Analysing gold's relationships...")
+        relationships = build_relationships(key)
+        print(f"  correlations: {len(relationships)} computed")
+
         print("Fetching release calendar...")
         calendar = fetch_release_calendar(key)
         print(f"  calendar: {len(calendar)} upcoming US releases")
@@ -2093,7 +2378,8 @@ def main() -> int:
             "quotes": quotes, "curve": curve, "clusters": clusters,
             "fred_rates": fred_rates, "fred_data": fred_data, "cftc": cftc,
             "failed": failed, "ok_feeds": ok_feeds, "seen_links": list(seen_links),
-            "calendar": calendar,
+            "calendar": calendar, "fred_liquidity": fred_liquidity,
+            "relationships": relationships,
             "unusual": unusual_moves(quotes),
             "change_summary": build_change_summary(quotes, snapshot),
         }
