@@ -1676,7 +1676,10 @@ def build_html(data: dict, args, fred_available: bool) -> str:
                 delta, cls = "n/a", "flat"
             else:
                 d = r["value"] - prev
-                delta, cls = f"{d:+.2f}", pct_class(d)
+                # Match the unit of the value beside it: percentage points for
+                # rates, thousands of jobs for payrolls.
+                delta = f"{d:+.2f}" if r["unit"] == "%" else f"{d:+,.0f}k"
+                cls = pct_class(d)
             out.append(f'<tr><td>{esc(r["label"])}</td><td class="v">{val}</td>'
                        f'<td class="v {cls}">{delta}</td>'
                        f'<td class="v">{esc(r.get("date", ""))}</td></tr>')
