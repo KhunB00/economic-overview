@@ -39,15 +39,33 @@ jobs:
           cp world_briefing.html index.html
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # Generated files are rebuilt every run, so never let them block a rebase.
+          git config merge.keepcurrent.name "keep the checked-out generated file"
+          git config merge.keepcurrent.driver "true"
+
           git add -A
           # The cache and history files carry state between runs, so "seen"
           # markers and the "what changed" box keep working.
           if git diff --quiet --cached; then
             echo "nothing changed"
-          else
-            git commit -q -m "Briefing $(TZ=Asia/Bangkok date +'%Y-%m-%d %H:%M') BKK"
-            git push
+            exit 0
           fi
+          git commit -q -m "Briefing $(TZ=Asia/Bangkok date +'%Y-%m-%d %H:%M') BKK"
+
+          # Two builds can overlap — a manual run beside the hourly one, say.
+          # Whoever pushes second gets rejected, so rebase onto the winner and
+          # try again rather than failing and sending a false alarm.
+          for attempt in 1 2 3 4 5; do
+            if git push 2>&1; then
+              echo "published on attempt $attempt"
+              exit 0
+            fi
+            echo "push rejected — another build landed first; rebasing (attempt $attempt)"
+            git pull --rebase --autostash || git rebase --abort || true
+            sleep $((attempt * 4))
+          done
+          echo "could not publish after 5 attempts"
+          exit 1
 
       # Runs AFTER publishing, so a degraded briefing still reaches your phone —
       # but a failing job makes GitHub email you that something is rotting.
