@@ -1,0 +1,9 @@
+# Your FRED key stays on your Mac and in GitHub's encrypted secrets — never here.
+fred_key.txt
+
+# Local-only bits
+.venv/
+briefing.log
+briefing.err
+__pycache__/
+*.pyc
