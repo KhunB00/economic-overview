@@ -1561,32 +1561,24 @@ CSS = """
    never carried by colour alone: red/green fail colour-blind separation
    (measured ΔE 4.6), so every figure keeps its sign and a triangle. */
 :root{
-  color-scheme:light;
-  --plane:#f9f9f7; --surface:#fcfcfb; --surface-2:#f4f3f0;
-  --ink:#0b0b0b; --ink-2:#52514e; --muted:#898781;
-  --rule:#e1e0d9; --rule-strong:#c3c2b7;
-  --up:#006300; --down:#d03b3b; --flat:#898781;
-  --accent:#2a78d6; --warning:#fab219; --critical:#d03b3b;
-  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
-  --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-}
-@media (prefers-color-scheme:dark){
-  :root:where(:not([data-theme="light"])){
-    color-scheme:dark;
-    --plane:#0d0d0d; --surface:#1a1a19; --surface-2:#211f1e;
-    --ink:#ffffff; --ink-2:#c3c2b7; --muted:#898781;
-    --rule:#2c2c2a; --rule-strong:#383835;
-    --up:#0ca30c; --down:#d03b3b; --flat:#898781;
-    --accent:#3987e5;
-  }
-}
-:root[data-theme="dark"]{
   color-scheme:dark;
   --plane:#0d0d0d; --surface:#1a1a19; --surface-2:#211f1e;
   --ink:#ffffff; --ink-2:#c3c2b7; --muted:#898781;
   --rule:#2c2c2a; --rule-strong:#383835;
   --up:#0ca30c; --down:#d03b3b; --flat:#898781;
-  --accent:#3987e5;
+  --accent:#3987e5; --warning:#fab219; --critical:#d03b3b;
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+}
+/* Dark is the default everywhere — it is the house style. Light is kept only
+   for anyone who explicitly asks for it, and for printing. */
+:root[data-theme="light"]{
+  color-scheme:light;
+  --plane:#f9f9f7; --surface:#fcfcfb; --surface-2:#f4f3f0;
+  --ink:#0b0b0b; --ink-2:#52514e; --muted:#898781;
+  --rule:#e1e0d9; --rule-strong:#c3c2b7;
+  --up:#006300; --down:#d03b3b; --flat:#898781;
+  --accent:#2a78d6;
 }
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
@@ -2135,13 +2127,19 @@ def build_html(data: dict, args, fred_available: bool) -> str:
             'what a bond pays you after inflation, so it is what gold costs you '
             'to hold</p>'
             '<div class="tscroll"><table><thead><tr><th>Measure</th><th>Latest</th>'
-            '<th>Change</th><th>As of</th></tr></thead><tbody>'
+            '<th>1-day change</th><th>As of</th></tr></thead><tbody>'
             + fred_rows(data.get("fred_rates", [])) +
             '</tbody></table></div></div>'
             '<div class="block"><h3>Growth &amp; inflation data</h3>'
-            '<p class="lede">Official US releases, year-over-year unless noted</p>'
+            '<p class="lede">Official US releases. Inflation and growth figures are '
+            'year-over-year &mdash; this month compared with the same month a year '
+            'ago. The change column compares each figure with the one before it, '
+            'so for an inflation rate it shows how much the <em>rate itself</em> '
+            'moved: +0.05 means inflation ran 0.05 points hotter than last time, '
+            'not that prices rose 0.05%. Releases arrive weekly, monthly or '
+            'quarterly, so check the date beside each one.</p>'
             '<div class="tscroll"><table><thead><tr><th>Indicator</th><th>Latest</th>'
-            '<th>vs prior</th><th>As of</th></tr></thead><tbody>'
+            '<th>vs previous release</th><th>As of</th></tr></thead><tbody>'
             + fred_rows(data.get("fred_data", [])) +
             '</tbody></table></div></div>')
     elif not fred_available:
@@ -2163,7 +2161,7 @@ def build_html(data: dict, args, fred_available: bool) -> str:
             '&mdash; the regime that decides whether a rally holds. Negative '
             'financial-conditions numbers mean looser than average.</p>'
             '<div class="tscroll"><table><thead><tr><th>Measure</th><th>Latest</th>'
-            '<th>Change</th><th>As of</th></tr></thead><tbody>'
+            '<th>vs previous reading</th><th>As of</th></tr></thead><tbody>'
             + fred_rows(data["fred_liquidity"]) +
             '</tbody></table></div></div>')
 
