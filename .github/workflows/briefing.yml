@@ -1,0 +1,50 @@
+name: Build briefing
+
+# Runs on GitHub's servers — your own computer does not need to be on.
+on:
+  schedule:
+    # Every hour, 06:00–23:00 Bangkok time (UTC+7), i.e. 23:00 and 00:00–16:00 UTC.
+    # GitHub's timer is best-effort and can run a few minutes late.
+    - cron: "0 23,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16 * * *"
+  workflow_dispatch:        # lets you trigger a rebuild by hand
+
+concurrency:
+  group: briefing
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install --quiet feedparser requests tzdata
+
+      - name: Build the briefing
+        env:
+          # Add this under Settings > Secrets > Actions to switch on the
+          # real-yield, breakeven and credit-spread rows. Optional.
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+        run: python world_briefing.py
+
+      - name: Publish
+        run: |
+          cp world_briefing.html index.html
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          # The cache and history files carry state between runs, so "seen"
+          # markers and the "what changed" box keep working.
+          if git diff --quiet --cached; then
+            echo "nothing changed"
+          else
+            git commit -q -m "Briefing $(TZ=Asia/Bangkok date +'%Y-%m-%d %H:%M') BKK"
+            git push
+          fi
