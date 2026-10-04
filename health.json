@@ -1,14 +1,14 @@
 {
- "built_at": "2026-10-04T12:04:36+00:00",
- "feeds_ok": 21,
- "feeds_total": 21,
- "prices_live": 47,
- "prices_total": 47,
- "fred_ok": 15,
- "fred_total": 15,
+ "built_at": "2026-10-04T13:09:24+00:00",
+ "feeds_ok": 26,
+ "feeds_total": 26,
+ "prices_live": 52,
+ "prices_total": 52,
+ "fred_ok": 19,
+ "fred_total": 19,
  "cftc_ok": 7,
  "cftc_total": 7,
- "calendar_events": 17,
- "stories": 298,
+ "calendar_events": 29,
+ "stories": 532,
  "failed_feeds": []
 }
