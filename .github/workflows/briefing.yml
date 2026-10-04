@@ -48,3 +48,8 @@ jobs:
             git commit -q -m "Briefing $(TZ=Asia/Bangkok date +'%Y-%m-%d %H:%M') BKK"
             git push
           fi
+
+      # Runs AFTER publishing, so a degraded briefing still reaches your phone —
+      # but a failing job makes GitHub email you that something is rotting.
+      - name: Alert if the briefing has degraded
+        run: python health_gate.py

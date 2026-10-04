@@ -78,6 +78,7 @@ HISTORY_FILE = HERE / "briefing_history.json"
 SNAPSHOT_FILE = HERE / "last_snapshot.json"
 FRED_KEY_FILE = HERE / "fred_key.txt"
 CALENDAR_CACHE = HERE / "calendar_cache.json"
+HEALTH_FILE = HERE / "health.json"
 
 BKK = ZoneInfo("Asia/Bangkok")
 NEW_YORK = ZoneInfo("America/New_York")
@@ -1468,6 +1469,13 @@ footer p{margin:5px 0}
 .kv .k{font-size:.71rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
 .kv .v{font:600 1rem var(--mono);font-variant-numeric:tabular-nums;margin-top:2px}
 .hide{display:none !important}
+#stale{display:none;margin:0 0 20px;padding:13px 16px;border-radius:10px;
+  border:1px solid var(--warn);background:var(--warn-soft);color:var(--ink)}
+#stale.show{display:block}
+#stale.bad{border-color:var(--down);background:transparent;
+  box-shadow:inset 0 0 0 2px var(--down)}
+#stale b{display:block;font-size:1rem;margin-bottom:3px}
+#stale span{font-size:.86rem;color:var(--muted)}
 @media (max-width:560px){
   .wrap{padding:20px 14px 48px} h1{font-size:1.4rem}
   .tape{grid-template-columns:repeat(auto-fit,minmax(132px,1fr))}
@@ -1475,6 +1483,28 @@ footer p{margin:5px 0}
 }
 @media print{.filters{display:none}body{background:#fff}}
 """
+
+# Runs in the reader's browser, not on any server — which is the whole point.
+# If the automatic build stops, nothing server-side is alive to warn you, but
+# this still fires the moment you open the page.
+STALE_JS_TEMPLATE = """
+(function(){
+  var built = new Date("__BUILT_ISO__");
+  var hours = (Date.now() - built.getTime()) / 3600000;
+  // Builds run 06:00-23:00 Bangkok, so an overnight gap of ~7h is normal.
+  if (hours < 10) return;
+  var el = document.getElementById('stale');
+  if (!el) return;
+  var age = hours < 48
+    ? Math.round(hours) + ' hours'
+    : Math.round(hours / 24) + ' days';
+  el.className = hours >= 36 ? 'show bad' : 'show';
+  el.innerHTML = '<b>This briefing is ' + age + ' old.</b>' +
+    '<span>The hourly build has not run. The numbers below are stale \\u2014 ' +
+    'check github.com/KhunB00/world-briefing for a failed or paused build.</span>';
+})();
+"""
+
 
 JS = """
 (function(){
@@ -1890,6 +1920,9 @@ def build_html(data: dict, args, fred_available: bool) -> str:
                    "News window: 24h for news feeds, up to 10 days for central banks "
                    "(they publish less often)")
 
+    stale_js = STALE_JS_TEMPLATE.replace("__BUILT_ISO__",
+                                         built.isoformat(timespec="seconds"))
+
     return f"""<!doctype html>
 <html lang="en"><head>
 <meta charset="utf-8">
@@ -1898,6 +1931,8 @@ def build_html(data: dict, args, fred_available: bool) -> str:
 <meta name="description" content="Daily macro briefing: markets, policy, data and headlines.">
 <style>{CSS}</style>
 </head><body><div class="wrap">
+
+<div id="stale" role="status"></div>
 
 <header class="top">
   <h1>World Economy Briefing</h1>
@@ -1958,7 +1993,7 @@ def build_html(data: dict, args, fred_available: bool) -> str:
   <p>Built {built.strftime('%Y-%m-%d %H:%M')} Bangkok time.</p>
 </footer>
 
-</div><script>{JS}</script></body></html>
+</div><script>{stale_js}</script><script>{JS}</script></body></html>
 """
 
 
@@ -2077,6 +2112,26 @@ def main() -> int:
         })
         # Keep a few days of builds so the comparison still works after a gap.
         save_json(SNAPSHOT_FILE, {"snapshots": snaps[-80:]})
+
+    # Write a machine-readable health summary. The cloud job reads this and
+    # emails you if the briefing has quietly degraded.
+    if not args.demo:
+        q = data["quotes"]
+        save_json(HEALTH_FILE, {
+            "built_at": dt.datetime.now(UTC).isoformat(timespec="seconds"),
+            "feeds_ok": len(data.get("ok_feeds", [])),
+            "feeds_total": sum(len(v) for v in FEEDS.values()),
+            "prices_live": sum(1 for x in q.values() if x.get("ok") and not x.get("degraded")),
+            "prices_total": len(q),
+            "fred_ok": sum(1 for r in data.get("fred_rates", []) + data.get("fred_data", [])
+                           if r.get("ok")),
+            "fred_total": len(data.get("fred_rates", [])) + len(data.get("fred_data", [])),
+            "cftc_ok": len(data.get("cftc", [])),
+            "cftc_total": len(CFTC_MARKETS),
+            "calendar_events": len(data.get("calendar", [])),
+            "stories": len(data.get("clusters", [])),
+            "failed_feeds": [f["name"] for f in data.get("failed", [])],
+        })
 
     html_out = build_html(data, args, fred_available)
     OUT_HTML.write_text(html_out, encoding="utf-8")

@@ -113,8 +113,28 @@ The page is built so that failures degrade visibly rather than silently:
 If that line degrades, send it to Claude along with the output of
 `--check-data`. Expect this maybe two to four times a year.
 
-You can also watch for failures without checking the page: GitHub emails you
-when a scheduled build fails.
+### You get told — you don't have to check
+
+Three alarms, covering three different ways this can fail:
+
+**1. The script crashes.** GitHub emails you when a scheduled job fails. On by
+default, nothing to set up.
+
+**2. The data quietly rots.** The page never crashes on purpose — it falls back
+to cached values and publishes anyway, which is right for you as a reader but
+would hide a slow decline. So `health_gate.py` runs *after* publishing: the page
+still goes out, but if the numbers look unhealthy the job fails and GitHub
+emails you, naming the cause. Thresholds are at the top of that file — currently
+75% of feeds, 85% of prices live, 20 stories minimum.
+
+**3. It stops running altogether.** Nothing server-side can detect its own
+absence — a job that never runs cannot email you. So the page checks itself: the
+build time is embedded, and when you open the page your browser compares it with
+the clock. Older than 10 hours shows an amber banner, older than 36 a red one.
+This works even when everything else is dead, because it runs in your browser.
+
+The 10-hour threshold allows for the overnight gap, since builds pause between
+23:00 and 06:00.
 
 ## Files
 
