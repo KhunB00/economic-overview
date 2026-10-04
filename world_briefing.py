@@ -77,8 +77,10 @@ MARKET_CACHE = HERE / "market_cache.json"
 HISTORY_FILE = HERE / "briefing_history.json"
 SNAPSHOT_FILE = HERE / "last_snapshot.json"
 FRED_KEY_FILE = HERE / "fred_key.txt"
+CALENDAR_CACHE = HERE / "calendar_cache.json"
 
 BKK = ZoneInfo("Asia/Bangkok")
+NEW_YORK = ZoneInfo("America/New_York")
 UTC = dt.timezone.utc
 UA = {
     "User-Agent": (
@@ -103,13 +105,27 @@ GRAMS_PER_TROY_OZ = 31.1034768
 
 EVENTS = [
     # (date, time_note_in_bangkok, label)
+    #
+    # Only put things here that FRED does not publish — central bank meetings,
+    # mostly. The big US data releases below are fetched automatically, so you
+    # never have to maintain those.
     ("2026-10-27", "two-day meeting begins", "FOMC meeting (decision ~01:00 BKK on the 29th)"),
     ("2026-10-28", "decision ~01:00 BKK on the 29th", "FOMC decision + press conference"),
-    # Add your own below. Examples (dates intentionally left blank — fill from
-    # the official calendars at bls.gov/schedule and federalreserve.gov):
-    # ("2026-11-06", "20:30 BKK", "US jobs report (non-farm payrolls)"),
-    # ("2026-11-12", "20:30 BKK", "US CPI inflation"),
 ]
+
+# Scheduled US data releases, pulled from FRED's official calendar (needs the
+# key). These are the releases that reliably move markets. All are published at
+# 08:30 New York time; the Bangkok time is worked out per date, so it stays
+# correct across US daylight-saving changes.
+CALENDAR_RELEASES = [
+    (10, "US inflation (CPI)"),
+    (50, "US jobs report (non-farm payrolls)"),
+    (54, "US core PCE — the Fed's preferred inflation gauge"),
+    (53, "US GDP"),
+    (9, "US retail sales"),
+    (46, "US producer prices (PPI)"),
+]
+RELEASE_TIME_ET = dt.time(8, 30)
 
 # ----------------------------------------------------------------------------
 # CONFIG 2 — MARKET INSTRUMENTS
@@ -736,6 +752,64 @@ def thai_gold_price(gold_usd_oz: float | None, usdthb: float | None) -> dict | N
 # ============================================================================
 # FRED — official US economic data (free key required)
 # ============================================================================
+
+def fetch_release_calendar(key: str | None, days_ahead: int = 120) -> list[dict]:
+    """
+    Upcoming US data releases, straight from FRED's official calendar.
+
+    This is why the "Coming up" box never needs maintaining: the dates come from
+    the agencies themselves, not from anything typed into this file. Falls back
+    to the last good fetch if FRED is unreachable.
+    """
+    if not key:
+        return []
+    today = now_bkk().date()
+    horizon = today + dt.timedelta(days=days_ahead)
+    out: list[dict] = []
+
+    def one(release_id: int, label: str) -> list[dict]:
+        resp = http_get("https://api.stlouisfed.org/fred/release/dates", params={
+            "release_id": release_id, "api_key": key, "file_type": "json",
+            "realtime_start": today.isoformat(),
+            "include_release_dates_with_no_data": "true",
+            "sort_order": "asc", "limit": 12,
+        }, timeout=15)
+        if resp.status_code != 200:
+            return []
+        rows = []
+        for item in resp.json().get("release_dates", []):
+            try:
+                d = dt.date.fromisoformat(item["date"])
+            except Exception:
+                continue
+            if not (today <= d <= horizon):
+                continue
+            # 08:30 in New York, expressed in Bangkok time for that exact date,
+            # so US daylight saving is handled without us thinking about it.
+            bkk = dt.datetime.combine(d, RELEASE_TIME_ET, NEW_YORK).astimezone(BKK)
+            rows.append({"date": d.isoformat(),
+                         "time_note": f"{bkk:%H:%M} BKK",
+                         "label": label})
+        return rows
+
+    try:
+        with ThreadPoolExecutor(max_workers=6) as pool:
+            futures = [pool.submit(one, rid, lbl) for rid, lbl in CALENDAR_RELEASES]
+            for fut in as_completed(futures):
+                try:
+                    out.extend(fut.result())
+                except Exception:
+                    continue
+    except Exception:
+        pass
+
+    if out:
+        save_json(CALENDAR_CACHE, {"fetched_at": dt.datetime.now(UTC).isoformat(timespec="seconds"),
+                                   "events": out})
+        return out
+    cached = load_json(CALENDAR_CACHE, {}).get("events", [])
+    return [e for e in cached if e.get("date", "") >= today.isoformat()]
+
 
 def fred_key() -> str | None:
     key = os.environ.get("FRED_API_KEY", "").strip()
@@ -1758,10 +1832,15 @@ def build_html(data: dict, args, fred_available: bool) -> str:
 
     # ---- Tier 2: events --------------------------------------------------
     today = built.date()
+    # Hand-kept entries (central bank meetings) plus the automatic US data
+    # releases fetched from FRED's official calendar.
+    combined = [{"date": d, "time_note": t, "label": l} for d, t, l in EVENTS]
+    combined += data.get("calendar") or []
+
     upcoming = []
-    for date_s, time_note, label in sorted(EVENTS):
+    for ev in sorted(combined, key=lambda e: (e["date"], e["label"])):
         try:
-            d = dt.date.fromisoformat(date_s)
+            d = dt.date.fromisoformat(ev["date"])
         except Exception:
             continue
         if d >= today:
@@ -1769,13 +1848,14 @@ def build_html(data: dict, args, fred_available: bool) -> str:
             when = "today" if days == 0 else "tomorrow" if days == 1 else f"in {days} days"
             upcoming.append(
                 f'<li><span class="d">{d.strftime("%d %b")}</span>'
-                f'<span>{esc(label)}<br><span class="note">{esc(time_note)} '
-                f'&middot; {when}</span></span></li>')
+                f'<span>{esc(ev["label"])}<br><span class="note">'
+                f'{esc(ev["time_note"])} &middot; {when}</span></span></li>')
     events_html = (
         '<div class="card"><h2>Coming up</h2>'
-        + (f'<ul class="events">{"".join(upcoming[:8])}</ul>' if upcoming else
-           '<p class="note">Nothing scheduled. Add dates to the EVENTS list at the '
-           'top of world_briefing.py.</p>')
+        + (f'<ul class="events">{"".join(upcoming[:10])}</ul>' if upcoming else
+           '<p class="note">Nothing scheduled in the next few months. US data '
+           'releases load automatically once a FRED key is set; central bank '
+           'meetings go in the EVENTS list at the top of world_briefing.py.</p>')
         + '</div>')
 
     # ---- Footer / health -------------------------------------------------
@@ -1797,6 +1877,8 @@ def build_html(data: dict, args, fred_available: bool) -> str:
     else:
         health += " &middot; FRED off (no key)"
     health += f" &middot; CFTC {len(cftc)}/{len(CFTC_MARKETS)}"
+    if data.get("calendar"):
+        health += f" &middot; calendar {len(data['calendar'])} events"
 
     failed_html = ""
     if failed:
@@ -1927,6 +2009,11 @@ def main() -> int:
             "fred_data": payload["fred_data"], "cftc": payload["cftc"],
             "failed": payload["failed"], "ok_feeds": payload["ok_feeds"],
             "seen_links": [], "unusual": unusual_moves(payload["quotes"]),
+            "calendar": [
+                {"date": (dt.date.today() + dt.timedelta(days=3)).isoformat(),
+                 "time_note": "19:30 BKK", "label": "US inflation (CPI)"},
+                {"date": (dt.date.today() + dt.timedelta(days=11)).isoformat(),
+                 "time_note": "19:30 BKK", "label": "US jobs report (non-farm payrolls)"}],
             "change_summary": {"since": None, "moves": []},
         }
         fred_available = True
@@ -1955,6 +2042,10 @@ def main() -> int:
             fred_rates, fred_data = [], []
             print("  FRED: skipped (no key — see fred_key.txt in the header notes)")
 
+        print("Fetching release calendar...")
+        calendar = fetch_release_calendar(key)
+        print(f"  calendar: {len(calendar)} upcoming US releases")
+
         print("Fetching CFTC positioning...")
         cftc = fetch_cftc()
         print(f"  CFTC: {len(cftc)}/{len(CFTC_MARKETS)} markets")
@@ -1967,6 +2058,7 @@ def main() -> int:
             "quotes": quotes, "curve": curve, "clusters": clusters,
             "fred_rates": fred_rates, "fred_data": fred_data, "cftc": cftc,
             "failed": failed, "ok_feeds": ok_feeds, "seen_links": list(seen_links),
+            "calendar": calendar,
             "unusual": unusual_moves(quotes),
             "change_summary": build_change_summary(quotes, snapshot),
         }
