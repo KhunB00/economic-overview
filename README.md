@@ -1,10 +1,23 @@
 # World Economy Briefing
 
+**Read it here: https://khunb00.github.io/world-briefing/**
+
+Add that to your phone's Home Screen and it behaves like an app.
+
+It rebuilds itself **every hour, 06:00–23:00 Bangkok time, on GitHub's servers** —
+your own computer does not need to be on, awake, or even in the same country.
+
 A daily macro dashboard built as one static HTML page. Markets, policy, economic
 data and headlines — scannable in about five minutes, with depth underneath when
 something catches your eye.
 
-## Run it
+## You don't need to run anything
+
+The page updates itself in the cloud. Just open the link above.
+
+Everything below is for when you want to change how it works.
+
+## Running it on this Mac (optional)
 
 ```bash
 cd ~/world-briefing
@@ -20,6 +33,21 @@ Takes about 20 seconds. Writes `world_briefing.html` in this folder.
 | `--hours 48` | Widen the news window (useful on Mondays, after a quiet weekend) |
 | `--check-data` | Print where every single number came from |
 
+## Where it runs
+
+`.github/workflows/briefing.yml` is the hourly runner. GitHub's timer is
+best-effort, so builds can land a few minutes past the hour.
+
+**One thing to know:** if nobody touches the repository for 60 days, GitHub
+pauses the schedule and emails you. Opening the repo and clicking "Enable
+workflow" restarts it. Pushing any change also resets the clock.
+
+To rebuild right now instead of waiting for the hour:
+
+```bash
+gh workflow run briefing.yml --repo KhunB00/world-briefing
+```
+
 ## Turn on the US data section
 
 Three of the most useful rows — the **real yield**, **breakeven inflation** and
@@ -31,12 +59,23 @@ for nothing but an email address.
 2. Create an account, click **Request API Key**
 3. Save it next to the script:
 
+Because the briefing now runs in the cloud, the key goes into GitHub's encrypted
+secrets, not a file:
+
+```bash
+gh secret set FRED_API_KEY --repo KhunB00/world-briefing
+```
+
+Paste the key when prompted. It is encrypted, never appears on the page, and is
+not visible to anyone browsing the repository.
+
+For local runs on this Mac as well:
+
 ```bash
 echo "YOUR_KEY_HERE" > ~/world-briefing/fred_key.txt
 ```
 
-The key lives only in that file, never inside the script, so the script stays
-safe to copy or share. The page tells you it's missing until you add it.
+That file is git-ignored, so it never leaves your machine.
 
 ## How to read the page
 
@@ -71,8 +110,11 @@ The page is built so that failures degrade visibly rather than silently:
 - The **health line** at the bottom summarises everything:
   `21/22 feeds OK · 46/47 prices live · 1 from cache`
 
-If that line degrades, run `--check-data` and send the output to Claude. Expect
-this maybe two to four times a year.
+If that line degrades, send it to Claude along with the output of
+`--check-data`. Expect this maybe two to four times a year.
+
+You can also watch for failures without checking the page: GitHub emails you
+when a scheduled build fails.
 
 ## Files
 
