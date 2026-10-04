@@ -209,6 +209,14 @@ TICKERS = {
         ("ZC=F", "Corn", "price"),
         ("ZS=F", "Soybeans", "price"),
     ],
+    "crypto": [
+        ("BTC-USD", "Bitcoin", "price"),
+        ("ETH-USD", "Ethereum", "price"),
+        ("SOL-USD", "Solana", "price"),
+        ("XRP-USD", "XRP", "price"),
+        ("IBIT", "Spot bitcoin ETF (IBIT)", "price"),
+        ("COIN", "Coinbase", "price"),
+    ],
     "risk": [
         ("^VIX", "VIX (equity vol)", "price"),
         ("^VVIX", "VVIX (vol of vol)", "price"),
@@ -216,7 +224,6 @@ TICKERS = {
         ("^OVX", "OVX (oil vol)", "price"),
         ("HYG", "High-yield credit (HYG)", "price"),
         ("LQD", "Investment-grade credit (LQD)", "price"),
-        ("BTC-USD", "Bitcoin", "price"),
     ],
 }
 
@@ -268,6 +275,72 @@ FRED_LIQUIDITY = [
     ("SOFR", "Overnight funding rate", "level", "%"),
     ("BAMLH0A3HYC", "CCC credit spread (riskiest borrowers)", "level", "%"),
 ]
+
+# ----------------------------------------------------------------------------
+# CONFIG 7 — HOW TO READ EACH NUMBER
+#
+# Published rules of thumb, not forecasts. Each entry is a list of
+# (upper_bound, label) read in order: the first bound the value is below wins.
+# The last entry uses None as "anything above". `note` explains the rule, and
+# appears in the reference table at the foot of the page.
+# ----------------------------------------------------------------------------
+
+BANDS = {
+    "^VIX": {"name": "VIX", "note": "Expected swings in US shares over the next month.",
+             "steps": [(12, "complacent"), (20, "calm"), (30, "elevated"), (None, "stressed")]},
+    "^GVZ": {"name": "Gold volatility", "note": "The same idea, for gold.",
+             "steps": [(15, "calm"), (25, "normal"), (35, "elevated"), (None, "stressed")]},
+    "^OVX": {"name": "Oil volatility", "note": "The same idea, for crude.",
+             "steps": [(30, "calm"), (45, "normal"), (60, "elevated"), (None, "stressed")]},
+    "DFII10": {"name": "Real 10-year yield",
+               "note": "What a bond pays after inflation — gold's main headwind. "
+                       "The higher it goes, the more it costs you to hold metal that pays nothing.",
+               "steps": [(0, "very supportive for gold"), (1, "supportive"),
+                         (2, "neutral"), (None, "headwind for gold")]},
+    "T5YIFR": {"name": "5y5y forward inflation",
+               "note": "Long-run inflation expectations. The Fed wants this near 2%.",
+               "steps": [(1.8, "below target"), (2.5, "anchored"), (None, "unanchored — a warning")]},
+    "T10Y2Y": {"name": "2s10s curve slope",
+               "note": "10-year yield minus 2-year. Below zero is an inversion, which has "
+                       "preceded most US recessions — though sometimes by over a year.",
+               "steps": [(0, "inverted — recession signal"), (1, "normal slope"), (None, "steep")]},
+    "BAMLH0A0HYM2": {"name": "High-yield spread",
+                     "note": "Extra interest risky companies pay over the government. "
+                             "Widening fast is the earliest sign of trouble.",
+                     "steps": [(3, "complacent"), (5, "normal"), (8, "stressed"), (None, "distress")]},
+    "BAMLH0A3HYC": {"name": "CCC spread",
+                    "note": "The same, for the weakest borrowers. It moves first.",
+                    "steps": [(8, "calm"), (12, "elevated"), (18, "stressed"), (None, "distress")]},
+    "NFCI": {"name": "Financial conditions",
+             "note": "Zero is average. Negative means money is easier than normal.",
+             "steps": [(-0.5, "loose"), (0, "easy"), (0.5, "tightening"), (None, "tight")]},
+    "STLFSI4": {"name": "Financial stress", "note": "Zero is normal. Above zero is strain.",
+                "steps": [(0, "below normal"), (1, "elevated"), (None, "high")]},
+    "ICSA": {"name": "Jobless claims",
+             "note": "Weekly US layoffs. Under 250k is a healthy labour market; "
+                     "a sustained climb above 300k has marked past downturns.",
+             "steps": [(250, "strong"), (300, "softening"), (None, "weakening")]},
+    "CPILFESL": {"name": "Core CPI", "note": "Inflation without food and energy. Target is 2%.",
+                 "steps": [(2.5, "at target"), (3.5, "above target"), (None, "hot")]},
+    "PCEPILFE": {"name": "Core PCE", "note": "The Fed's preferred inflation gauge. Target is 2%.",
+                 "steps": [(2.5, "at target"), (3.5, "above target"), (None, "hot")]},
+    "UNRATE": {"name": "Unemployment",
+               "note": "The level matters less than the direction — rises tend to accelerate.",
+               "steps": [(4.5, "tight labour market"), (5.5, "loosening"), (None, "weak")]},
+}
+
+
+def band_label(key: str, value) -> str:
+    """The rule-of-thumb reading for a value, or '' when we have no rule."""
+    cfg = BANDS.get(key)
+    if not cfg or value is None:
+        return ""
+    for bound, label in cfg["steps"]:
+        if bound is None or value < bound:
+            return label
+    return ""
+
+
 
 # ----------------------------------------------------------------------------
 # CONFIG 4 — CFTC POSITIONING (free, keyless, official; weekly)
@@ -985,7 +1058,7 @@ def fetch_cftc() -> list[dict]:
                             "noncomm_positions_short_all,open_interest_all"),
                 "$where": f"market_and_exchange_names='{contract}'",
                 "$order": "report_date_as_yyyy_mm_dd DESC",
-                "$limit": 8,
+                "$limit": 60,
             }, timeout=20)
             if resp.status_code != 200:
                 continue
@@ -1001,10 +1074,18 @@ def fetch_cftc() -> list[dict]:
             net_now = net(latest)
             net_prev = net(obs[1]) if len(obs) > 1 else None
             net_4w = net(obs[4]) if len(obs) > 4 else None
+            # "+218,632" is meaningless alone. Where it sits in its own past
+            # year is what tells you whether the trade is crowded.
+            history = [net(o) for o in obs[:53]]
+            pct = None
+            if len(history) >= 20:
+                below = sum(1 for v in history if v < net_now)
+                pct = round(100 * below / len(history))
             rows.append({
                 "label": label,
                 "date": latest["report_date_as_yyyy_mm_dd"][:10],
                 "net": net_now,
+                "percentile": pct,
                 "chg_1w": (net_now - net_prev) if net_prev is not None else None,
                 "chg_4w": (net_now - net_4w) if net_4w is not None else None,
                 "open_interest": int(float(latest.get("open_interest_all", 0) or 0)),
@@ -1738,6 +1819,15 @@ footer{margin-top:42px;padding-top:16px;border-top:1px solid var(--rule-strong);
 footer p{margin:5px 0}
 footer .health{font-family:var(--mono);font-size:.72rem;color:var(--ink-2)}
 .note{font-size:.79rem;color:var(--ink-2);margin:9px 0 0;max-width:70ch}
+.gauge{display:inline-block;margin-left:8px;padding:2px 6px;border-radius:2px;
+  border:1px solid var(--rule-strong);font:600 .63rem/1.3 var(--sans);
+  letter-spacing:.02em;color:var(--ink-2);white-space:nowrap;
+  font-variant-numeric:normal;vertical-align:middle}
+.ref td:first-child{font-weight:600}
+.ref td.rule{white-space:normal;text-align:left;color:var(--ink-2);font-size:.78rem;
+  line-height:1.45;min-width:260px}
+.ref td.scale{white-space:normal;text-align:left;font-family:var(--mono);
+  font-size:.72rem;color:var(--ink-2);min-width:200px}
 .hide{display:none !important}
 
 @media (max-width:600px){
@@ -1825,6 +1915,28 @@ def sparkline(points: list, direction: str) -> str:
 ARROWS = {"up": "\u25b2", "down": "\u25bc", "flat": "\u2013"}
 
 
+
+def percentile_cell(pct) -> str:
+    """Where this week's positioning sits within its own past year."""
+    if pct is None:
+        return "n/a"
+    # 1st, 2nd, 3rd, 4th … and the 11/12/13 exceptions.
+    suffix = ("th" if 11 <= pct % 100 <= 13
+              else {1: "st", 2: "nd", 3: "rd"}.get(pct % 10, "th"))
+    if pct >= 85:
+        word = "crowded long"
+    elif pct >= 65:
+        word = "long-leaning"
+    elif pct <= 15:
+        word = "crowded short"
+    elif pct <= 35:
+        word = "short-leaning"
+    else:
+        word = "middling"
+    return f'{pct}{suffix}<span class="gauge">{word}</span>'
+
+
+
 def render_quote_row(sym: str, label: str, kind: str, q: dict) -> str:
     """One row of a market table, with the right units for the instrument type."""
     if not q or not q.get("ok"):
@@ -1855,6 +1967,8 @@ def render_quote_row(sym: str, label: str, kind: str, q: dict) -> str:
     z = q.get("zscore")
     flag = (f'<span class="sig">{abs(z):.1f}&sigma;</span>'
             if z is not None and abs(z) >= 2.0 else "")
+    reading = band_label(sym, q.get("last"))
+    read_chip = f'<span class="gauge">{esc(reading)}</span>' if reading else ""
 
     def horizon(key):
         # For yields and the implied policy rate, every horizon belongs in basis
@@ -1872,7 +1986,7 @@ def render_quote_row(sym: str, label: str, kind: str, q: dict) -> str:
 
     return (
         f'<tr><td>{esc(label)}{stale}</td>'
-        f'<td class="v">{value}</td>'
+        f'<td class="v">{value}{read_chip}</td>'
         f'<td class="v {cls1}">{c1}{flag}</td>'
         f'{horizon("pct_1w")}{horizon("pct_1m")}{horizon("pct_ytd")}</tr>'
     )
@@ -2114,6 +2228,9 @@ def build_html(data: dict, args, fred_available: bool) -> str:
             # A series that quietly stopped updating must never look current.
             flag = (f'<span class="stale">series stale &mdash; '
                     f'{r.get("age_days", "?")}d old</span>') if r.get("stale") else ""
+            reading = band_label(r["id"], r["value"])
+            if reading:
+                val += f'<span class="gauge">{esc(reading)}</span>' 
             out.append(f'<tr><td>{esc(r["label"])}{flag}</td><td class="v">{val}</td>'
                        f'<td class="v {cls}">{delta}</td>'
                        f'<td class="v">{esc(r.get("date", ""))}</td></tr>')
@@ -2208,6 +2325,7 @@ def build_html(data: dict, args, fred_available: bool) -> str:
             f'{fmt_signed(c.get("chg_1w"), 0)}</td>'
             f'<td class="v {pct_class(c.get("chg_4w"))}">'
             f'{fmt_signed(c.get("chg_4w"), 0)}</td>'
+            f'<td class="v">{percentile_cell(c.get("percentile"))}</td>'
             f'<td class="v">{esc(c["date"])}</td></tr>' for c in cftc)
         cftc_html = (
             '<div class="block"><h3>Speculative positioning (CFTC)</h3>'
@@ -2215,7 +2333,8 @@ def build_html(data: dict, args, fred_available: bool) -> str:
             'means the bullish trade is already crowded, which cuts both ways '
             '&mdash; published weekly, with a few days&rsquo; lag</p>'
             '<div class="tscroll"><table><thead><tr><th>Market</th><th>Net position</th>'
-            '<th>1 week</th><th>4 weeks</th><th>As of</th></tr></thead>'
+            '<th>1 week</th><th>4 weeks</th><th>vs past year</th>'
+            '<th>As of</th></tr></thead>'
             f'<tbody>{rows}</tbody></table></div></div>')
 
     # ---- Tier 2: Thai gold ----------------------------------------------
@@ -2240,6 +2359,33 @@ def build_html(data: dict, args, fred_available: bool) -> str:
             'at 96.5% purity. Real shop quotes from the Gold Traders Association add '
             'a dealer premium, so treat this as a reference, not a dealing price.</p>'
             '</div>')
+
+    # ---- Tier 2: how to read the page -----------------------------------
+    ref_rows = []
+    for key, cfg in BANDS.items():
+        scale, prev = [], None
+        for bound, label in cfg["steps"]:
+            if bound is None:
+                scale.append(f"{prev}+ → {label}")
+            elif prev is None:
+                scale.append(f"below {bound} → {label}")
+            else:
+                scale.append(f"{prev}–{bound} → {label}")
+            prev = bound
+        ref_rows.append(
+            f'<tr><td>{esc(cfg["name"])}</td>'
+            f'<td class="rule">{esc(cfg["note"])}</td>'
+            f'<td class="scale">{esc(" · ".join(scale))}</td></tr>')
+    reference_html = (
+        '<div class="block"><h3>How to read this page</h3>'
+        '<p class="lede">The small grey labels beside some numbers come from these '
+        'rules of thumb &mdash; widely used reference ranges, not forecasts. They '
+        'describe where a number sits, never what happens next. When a label and '
+        'your own reading disagree, trust the number and the date.</p>'
+        '<div class="tscroll"><table class="ref"><thead><tr><th>Indicator</th>'
+        '<th style="text-align:left">What it measures</th>'
+        '<th style="text-align:left">Bands</th></tr></thead>'
+        f'<tbody>{"".join(ref_rows)}</tbody></table></div></div>')
 
     # ---- Tier 2: events --------------------------------------------------
     today = built.date()
@@ -2354,10 +2500,17 @@ def build_html(data: dict, args, fred_available: bool) -> str:
   <div class="block"><h3>Commodities</h3>{render_table('commodities', quotes)}</div>
   {rel_html}
   {thai_html}
+  <div class="block"><h3>Crypto</h3>
+    <p class="lede">Watched less as an asset class than as a thermometer: crypto
+    is the most liquidity-sensitive thing on the page, so it tends to move early
+    when money gets easier or tighter. The spot ETF is the cleanest read on
+    institutional demand.</p>
+    {render_table('crypto', quotes)}</div>
   <div class="block"><h3>Risk appetite &amp; volatility</h3>
     <p class="lede">When these rise together, investors are getting defensive</p>
     {render_table('risk', quotes)}</div>
   {cftc_html}
+  {reference_html}
   {events_html}
 </section>
 
