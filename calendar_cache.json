@@ -1,30 +1,20 @@
 {
- "fetched_at": "2026-10-04T15:10:55+00:00",
+ "fetched_at": "2026-10-04T15:31:07+00:00",
  "events": [
   {
-   "date": "2026-10-14",
+   "date": "2026-10-29",
    "time_note": "19:30 BKK",
-   "label": "US inflation (CPI)"
+   "label": "US GDP"
   },
   {
-   "date": "2026-11-10",
+   "date": "2026-11-25",
    "time_note": "20:30 BKK",
-   "label": "US inflation (CPI)"
+   "label": "US GDP"
   },
   {
-   "date": "2026-12-10",
+   "date": "2026-12-23",
    "time_note": "20:30 BKK",
-   "label": "US inflation (CPI)"
-  },
-  {
-   "date": "2026-11-06",
-   "time_note": "20:30 BKK",
-   "label": "US jobs report (non-farm payrolls)"
-  },
-  {
-   "date": "2026-12-04",
-   "time_note": "20:30 BKK",
-   "label": "US jobs report (non-farm payrolls)"
+   "label": "US GDP"
   },
   {
    "date": "2026-10-15",
@@ -42,6 +32,46 @@
    "label": "US retail sales"
   },
   {
+   "date": "2026-11-06",
+   "time_note": "20:30 BKK",
+   "label": "US jobs report (non-farm payrolls)"
+  },
+  {
+   "date": "2026-12-04",
+   "time_note": "20:30 BKK",
+   "label": "US jobs report (non-farm payrolls)"
+  },
+  {
+   "date": "2026-10-14",
+   "time_note": "19:30 BKK",
+   "label": "US inflation (CPI)"
+  },
+  {
+   "date": "2026-11-10",
+   "time_note": "20:30 BKK",
+   "label": "US inflation (CPI)"
+  },
+  {
+   "date": "2026-12-10",
+   "time_note": "20:30 BKK",
+   "label": "US inflation (CPI)"
+  },
+  {
+   "date": "2026-10-29",
+   "time_note": "19:30 BKK",
+   "label": "US core PCE \u2014 the Fed's preferred inflation gauge"
+  },
+  {
+   "date": "2026-11-25",
+   "time_note": "20:30 BKK",
+   "label": "US core PCE \u2014 the Fed's preferred inflation gauge"
+  },
+  {
+   "date": "2026-12-23",
+   "time_note": "20:30 BKK",
+   "label": "US core PCE \u2014 the Fed's preferred inflation gauge"
+  },
+  {
    "date": "2026-10-15",
    "time_note": "19:30 BKK",
    "label": "US producer prices (PPI)"
@@ -55,36 +85,6 @@
    "date": "2026-12-15",
    "time_note": "20:30 BKK",
    "label": "US producer prices (PPI)"
-  },
-  {
-   "date": "2026-10-29",
-   "time_note": "19:30 BKK",
-   "label": "US GDP"
-  },
-  {
-   "date": "2026-11-25",
-   "time_note": "20:30 BKK",
-   "label": "US GDP"
-  },
-  {
-   "date": "2026-12-23",
-   "time_note": "20:30 BKK",
-   "label": "US GDP"
-  },
-  {
-   "date": "2026-10-29",
-   "time_note": "19:30 BKK",
-   "label": "US core PCE \u2014 the Fed's preferred inflation gauge"
-  },
-  {
-   "date": "2026-11-25",
-   "time_note": "20:30 BKK",
-   "label": "US core PCE \u2014 the Fed's preferred inflation gauge"
-  },
-  {
-   "date": "2026-12-23",
-   "time_note": "20:30 BKK",
-   "label": "US core PCE \u2014 the Fed's preferred inflation gauge"
   },
   {
    "date": "2026-10-08",
