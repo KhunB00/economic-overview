@@ -146,3 +146,23 @@ St. Louis). Positioning from the CFTC. News by RSS from each publisher.
 Nothing is scraped; every headline links back to its source.
 
 Education only, not financial advice.
+
+## If git ever complains about conflicts
+
+The cloud rebuilds hourly and commits its output. If you also run the script on
+this Mac, both sides rewrite the same generated files and git sees a conflict.
+
+Those files don't matter — the next build regenerates them. `.gitattributes`
+tells git to stop fighting over them, which needs one setting per clone:
+
+```bash
+git config merge.keepcurrent.name "keep the checked-out version of generated files"
+git config merge.keepcurrent.driver "true"
+```
+
+Simplest habit: because the cloud does everything now, you rarely need to run it
+here at all. Before editing anything locally, start from what the cloud has:
+
+```bash
+cd ~/world-briefing && git fetch && git reset --hard origin/main
+```

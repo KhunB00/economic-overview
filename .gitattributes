@@ -1,0 +1,9 @@
+# These files are regenerated from scratch on every build, so merging them is
+# meaningless — a conflict here is noise, not a real disagreement. Keep whatever
+# version is already checked out; the next build overwrites it anyway.
+market_cache.json      merge=keepcurrent
+briefing_history.json  merge=keepcurrent
+last_snapshot.json     merge=keepcurrent
+calendar_cache.json    merge=keepcurrent
+world_briefing.html    merge=keepcurrent
+index.html             merge=keepcurrent
