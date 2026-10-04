@@ -628,6 +628,8 @@ def fetch_quote(symbol: str) -> dict:
             "abs_1m": abs_from(i_1m),
             "abs_ytd": abs_from(i_ytd),
             "n_points": len(closes),
+            # A downsampled year of closes, for the sparkline in the tape.
+            "spark": [round(c, 4) for c in closes[-250:]][::max(1, len(closes[-250:]) // 48)][-48:],
             "sigma_20d": sigma,
             "currency": meta.get("currency"),
             "name": meta.get("shortName") or symbol,
@@ -1555,134 +1557,209 @@ def demo_payload() -> dict:
 # ============================================================================
 
 CSS = """
+/* Palette and surfaces from the validated reference instance. Direction is
+   never carried by colour alone: red/green fail colour-blind separation
+   (measured ΔE 4.6), so every figure keeps its sign and a triangle. */
 :root{
-  --bg:#fbfaf8; --panel:#ffffff; --ink:#15171a; --muted:#5d6672; --faint:#8b95a3;
-  --line:#e4e2dd; --line-soft:#efedea; --up:#0a7d4f; --down:#c0392b; --flat:#6b7280;
-  --accent:#1f4e79; --accent-soft:#eaf1f8; --warn:#9a6700; --warn-soft:#fdf6e3;
+  color-scheme:light;
+  --plane:#f9f9f7; --surface:#fcfcfb; --surface-2:#f4f3f0;
+  --ink:#0b0b0b; --ink-2:#52514e; --muted:#898781;
+  --rule:#e1e0d9; --rule-strong:#c3c2b7;
+  --up:#006300; --down:#d03b3b; --flat:#898781;
+  --accent:#2a78d6; --warning:#fab219; --critical:#d03b3b;
   --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
-  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
 }
 @media (prefers-color-scheme:dark){
-  :root:not([data-theme="light"]){
-    --bg:#111317; --panel:#181b20; --ink:#e8eaed; --muted:#a2abb8; --faint:#78818f;
-    --line:#2a2e36; --line-soft:#22262d; --up:#3ecf8e; --down:#ff6b5e; --flat:#8b95a3;
-    --accent:#7fb3e3; --accent-soft:#1b2838; --warn:#e0b350; --warn-soft:#2a2418;
+  :root:where(:not([data-theme="light"])){
+    color-scheme:dark;
+    --plane:#0d0d0d; --surface:#1a1a19; --surface-2:#211f1e;
+    --ink:#ffffff; --ink-2:#c3c2b7; --muted:#898781;
+    --rule:#2c2c2a; --rule-strong:#383835;
+    --up:#0ca30c; --down:#d03b3b; --flat:#898781;
+    --accent:#3987e5;
   }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --plane:#0d0d0d; --surface:#1a1a19; --surface-2:#211f1e;
+  --ink:#ffffff; --ink-2:#c3c2b7; --muted:#898781;
+  --rule:#2c2c2a; --rule-strong:#383835;
+  --up:#0ca30c; --down:#d03b3b; --flat:#898781;
+  --accent:#3987e5;
 }
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
-  font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
-.wrap{max-width:1040px;margin:0 auto;padding:28px 16px 64px}
-a{color:var(--accent);text-decoration:none;border-bottom:1px solid transparent}
-a:hover{border-bottom-color:currentColor}
-a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px}
-h1{font-size:1.65rem;line-height:1.2;margin:0 0 4px;letter-spacing:-.02em}
-h2{font-size:1.12rem;margin:0 0 2px;letter-spacing:-.01em}
-h3{font-size:.95rem;margin:0 0 10px;color:var(--muted);font-weight:600}
-.sub{color:var(--muted);font-size:.86rem;margin:0}
-header.top{border-bottom:2px solid var(--ink);padding-bottom:14px;margin-bottom:22px}
-.tier{margin:0 0 30px}
-.tier-label{display:flex;align-items:baseline;gap:10px;border-bottom:1px solid var(--line);
-  padding-bottom:7px;margin:0 0 16px}
-.tier-label .n{font:600 .72rem/1 var(--mono);color:var(--faint);letter-spacing:.09em;
-  text-transform:uppercase;white-space:nowrap}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;
-  padding:16px 18px;margin:0 0 16px}
-.card.accent{background:var(--accent-soft);border-color:transparent}
-.card.warn{background:var(--warn-soft);border-color:transparent}
-.num{font-family:var(--mono);font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+body{margin:0;background:var(--plane);color:var(--ink);font-family:var(--sans);
+  font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;
+  font-feature-settings:"kern" 1}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px 72px}
+a{color:inherit;text-decoration:none;border-bottom:1px solid var(--rule-strong)}
+a:hover{border-bottom-color:var(--ink)}
+a:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:1px}
+
+/* ---- masthead ---------------------------------------------------------- */
+.masthead{border-bottom:2px solid var(--ink);padding:30px 0 12px;margin-bottom:0}
+.masthead h1{margin:0;font-size:1.5rem;font-weight:700;letter-spacing:-.021em}
+.mastrow{display:flex;justify-content:space-between;align-items:baseline;
+  gap:16px;flex-wrap:wrap}
+.stamp{font:500 .75rem/1.5 var(--mono);color:var(--ink-2);
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+.kicker{font:600 .67rem/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;
+  color:var(--muted);margin:0 0 7px}
+
+/* ---- section rules ----------------------------------------------------- */
+section.band{margin:34px 0 0}
+.bandhead{display:flex;align-items:baseline;gap:12px;border-bottom:1px solid var(--ink);
+  padding-bottom:6px;margin-bottom:18px}
+.bandhead .n{font:600 .68rem/1 var(--mono);color:var(--muted);letter-spacing:.1em}
+.bandhead h2{margin:0;font-size:.94rem;font-weight:700;letter-spacing:-.006em}
+.bandhead .r{margin-left:auto;font:500 .7rem/1 var(--mono);color:var(--muted)}
+
+/* ---- blocks ------------------------------------------------------------ */
+.block{background:var(--surface);border:1px solid var(--rule);border-radius:3px;
+  padding:16px 18px 14px;margin:0 0 14px}
+.block>h3{margin:0 0 2px;font-size:.88rem;font-weight:700;letter-spacing:-.004em}
+.block>p.lede{margin:3px 0 13px;font-size:.81rem;line-height:1.5;color:var(--ink-2);
+  max-width:66ch}
+.block.flag{border-color:var(--rule-strong);border-left:3px solid var(--warning)}
+
+/* ---- the tape ---------------------------------------------------------- */
+.tape{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));
+  border-top:1px solid var(--rule);border-left:1px solid var(--rule);
+  background:var(--surface);border-radius:3px;overflow:hidden}
+.tape .cell{border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);
+  padding:13px 14px 11px}
+.tape .k{font:600 .65rem/1.3 var(--sans);letter-spacing:.09em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:7px;min-height:1.3em}
+.tape .p{font:650 1.42rem/1.05 var(--sans);letter-spacing:-.025em;margin-bottom:4px}
+.tape .d{font:600 .8rem/1 var(--mono);font-variant-numeric:tabular-nums;
+  display:flex;align-items:center;gap:5px}
+.spark{display:block;width:100%;height:22px;margin-top:9px;overflow:visible}
+.arrow{font-size:.62rem;line-height:1}
+
+/* ---- tables ------------------------------------------------------------ */
+.tscroll{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -2px}
+table{width:100%;border-collapse:collapse;font-size:.83rem}
+thead th{text-align:right;font:600 .64rem/1.4 var(--sans);letter-spacing:.09em;
+  text-transform:uppercase;color:var(--muted);padding:0 0 8px;
+  border-bottom:1px solid var(--rule-strong);white-space:nowrap}
+thead th:first-child{text-align:left}
+td{padding:7px 0;border-bottom:1px solid var(--rule);text-align:right;
+  white-space:nowrap;font-variant-numeric:tabular-nums}
+td:first-child{text-align:left;white-space:normal;padding-right:18px;
+  font-variant-numeric:normal;color:var(--ink)}
+tbody tr:last-child td{border-bottom:none}
+th+th,td+td{padding-left:16px}
+td.v{font-family:var(--mono);font-size:.81rem}
 .up{color:var(--up)} .down{color:var(--down)} .flat{color:var(--flat)}
-table{width:100%;border-collapse:collapse;font-size:.88rem}
-.tscroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
-th{text-align:right;font-weight:600;color:var(--muted);font-size:.74rem;
-  text-transform:uppercase;letter-spacing:.05em;padding:0 0 7px;
-  border-bottom:1px solid var(--line);white-space:nowrap}
-th:first-child{text-align:left}
-td{padding:7px 0;border-bottom:1px solid var(--line-soft);text-align:right;white-space:nowrap}
-td:first-child{text-align:left;white-space:normal;padding-right:14px}
-tr:last-child td{border-bottom:none}
-td.v{font-family:var(--mono);font-variant-numeric:tabular-nums}
-th+th,td+td{padding-left:14px}
-.sig{display:inline-block;margin-left:6px;font:600 .66rem/1 var(--mono);
-  color:var(--warn);border:1px solid currentColor;border-radius:3px;padding:2px 4px;
-  vertical-align:middle}
-.tape{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;
-  background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden}
-.tape div{background:var(--panel);padding:11px 13px}
-.tape .k{font-size:.72rem;color:var(--muted);text-transform:uppercase;
-  letter-spacing:.04em;margin-bottom:3px}
-.tape .p{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:1.1rem;
-  font-weight:600;letter-spacing:-.01em}
-.tape .c{font-family:var(--mono);font-size:.8rem;margin-top:1px}
+
+/* ---- flags and chips --------------------------------------------------- */
+.sig{display:inline-block;margin-left:7px;font:600 .61rem/1 var(--mono);
+  color:var(--ink);background:var(--surface-2);border:1px solid var(--rule-strong);
+  border-radius:2px;padding:2px 4px;vertical-align:middle}
+.stale{display:inline-block;margin-left:7px;font:600 .61rem/1 var(--sans);
+  color:var(--ink-2);border:1px solid var(--rule-strong);border-radius:2px;
+  padding:2px 5px;white-space:nowrap}
+
+/* ---- stories ----------------------------------------------------------- */
 ol.stories{list-style:none;counter-reset:s;margin:0;padding:0}
-ol.stories li{counter-increment:s;position:relative;padding:0 0 14px 34px;
-  margin-bottom:14px;border-bottom:1px solid var(--line-soft)}
+ol.stories li{counter-increment:s;position:relative;padding:0 0 15px 32px;
+  margin-bottom:15px;border-bottom:1px solid var(--rule)}
 ol.stories li:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
-ol.stories li::before{content:counter(s);position:absolute;left:0;top:1px;
-  font:600 .8rem/1.5 var(--mono);color:var(--faint);width:22px;height:22px;
-  text-align:center;border:1px solid var(--line);border-radius:50%}
-.hl{font-weight:600;font-size:1rem;line-height:1.38;display:block;margin-bottom:3px}
-.why{color:var(--muted);font-size:.87rem;margin:4px 0 0}
-.meta{font-size:.76rem;color:var(--faint);margin-top:4px;display:flex;
-  flex-wrap:wrap;gap:4px 9px;align-items:center}
-.tag{display:inline-block;font-size:.68rem;padding:2px 7px;border-radius:999px;
-  background:var(--accent-soft);color:var(--accent);font-weight:600;white-space:nowrap}
-.pw{font-size:.68rem;color:var(--warn);border:1px solid currentColor;
-  border-radius:3px;padding:1px 4px;font-weight:600}
-.seen{font-size:.68rem;color:var(--faint);border:1px solid var(--line);
-  border-radius:3px;padding:1px 4px}
-.also{font-size:.76rem;color:var(--faint);margin-top:3px}
-.filters{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 16px}
-.filters button{font:600 .8rem var(--sans);color:var(--muted);background:var(--panel);
-  border:1px solid var(--line);border-radius:999px;padding:6px 13px;cursor:pointer}
-.filters button:hover{border-color:var(--accent);color:var(--accent)}
-.filters button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);
-  color:#fff}
+ol.stories li::before{content:counter(s,decimal-leading-zero);position:absolute;
+  left:0;top:3px;font:600 .7rem/1 var(--mono);color:var(--muted)}
+.hl{display:block;font-size:1rem;font-weight:650;line-height:1.34;
+  letter-spacing:-.008em;margin-bottom:4px;border-bottom:none}
+.hl:hover{border-bottom:none;text-decoration:underline;text-underline-offset:3px}
+.why{margin:5px 0 0;font-size:.83rem;line-height:1.5;color:var(--ink-2);max-width:72ch}
+.meta{margin-top:6px;font:500 .71rem/1.5 var(--mono);color:var(--muted);
+  display:flex;flex-wrap:wrap;gap:3px 10px;align-items:center}
+.meta .src{color:var(--ink-2);font-weight:600}
+.tag{font:600 .64rem/1 var(--sans);letter-spacing:.04em;padding:3px 7px;
+  border:1px solid var(--rule-strong);border-radius:2px;color:var(--ink-2)}
+.pw,.seen{font:600 .62rem/1 var(--mono);border:1px solid var(--rule-strong);
+  border-radius:2px;padding:2px 4px;color:var(--muted)}
+.also{margin-top:5px;font-size:.74rem;color:var(--muted)}
+.also a{border-bottom-color:var(--rule)}
+
+/* ---- filters ----------------------------------------------------------- */
+.filters{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 18px}
+.filters button{font:600 .76rem var(--sans);color:var(--ink-2);background:var(--surface);
+  border:1px solid var(--rule-strong);border-radius:2px;padding:6px 12px;cursor:pointer;
+  letter-spacing:.01em}
+.filters button:hover{border-color:var(--ink);color:var(--ink)}
+.filters button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);
+  color:var(--plane)}
 .filters button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.newsgrp{margin:0 0 22px}
-ul.items{list-style:none;margin:0;padding:0}
-ul.items li{padding:9px 0;border-bottom:1px solid var(--line-soft)}
-ul.items li:last-child{border-bottom:none}
-.curve{display:flex;gap:1px;background:var(--line);border-radius:8px;overflow:hidden;
-  margin:12px 0 10px;border:1px solid var(--line)}
-.curve div{flex:1;background:var(--panel);padding:9px 6px;text-align:center}
-.curve .m{font:600 .7rem var(--mono);color:var(--muted)}
-.curve .q{font:600 .95rem var(--mono);font-variant-numeric:tabular-nums}
-.note{font-size:.84rem;color:var(--muted);margin:8px 0 0}
+
+/* ---- key-value grid ---------------------------------------------------- */
+.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(176px,1fr));gap:12px}
+.kv>div{border-left:2px solid var(--rule-strong);padding:2px 0 2px 11px}
+.kv .k{font:600 .64rem/1.3 var(--sans);letter-spacing:.08em;text-transform:uppercase;
+  color:var(--muted)}
+.kv .v{font:650 1.08rem/1.3 var(--sans);letter-spacing:-.015em;margin-top:2px;
+  font-variant-numeric:tabular-nums}
+
+/* ---- oil curve --------------------------------------------------------- */
+.curve{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:2px;
+  margin:4px 0 12px;align-items:end;height:92px}
+.curve .col{display:flex;flex-direction:column;justify-content:flex-end;height:100%;
+  text-align:center;gap:5px}
+.curve .bar{background:var(--accent);border-radius:4px 4px 0 0;min-height:4px}
+.curve .q{font:600 .76rem/1 var(--mono);font-variant-numeric:tabular-nums}
+.curve .m{font:600 .64rem/1 var(--mono);color:var(--muted);letter-spacing:.05em}
+
+/* ---- correlation (diverging: negative left, positive right) ------------ */
+.corr{position:relative;display:inline-block;height:9px;background:var(--surface-2);border-radius:2px;
+  min-width:116px}
+.corr::before{content:"";position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;
+  background:var(--rule-strong)}
+.corr i{position:absolute;top:0;height:100%;display:block}
+.corr i.neg{background:var(--accent);border-radius:4px 0 0 4px;right:50%}
+.corr i.pos{background:var(--critical);border-radius:0 4px 4px 0;left:50%}
+td.read{text-align:left;white-space:normal;font-size:.78rem;line-height:1.45;
+  color:var(--ink-2);min-width:230px}
+
+/* ---- events ------------------------------------------------------------ */
 .events{list-style:none;margin:0;padding:0}
-.events li{display:flex;gap:12px;padding:7px 0;border-bottom:1px solid var(--line-soft);
-  font-size:.88rem}
+.events li{display:flex;gap:14px;padding:8px 0;border-bottom:1px solid var(--rule);
+  font-size:.83rem;align-items:baseline}
 .events li:last-child{border-bottom:none}
-.events .d{font:600 .8rem var(--mono);color:var(--accent);min-width:88px;white-space:nowrap}
-.stale{color:var(--warn);font-size:.72rem;margin-left:5px}
-footer{margin-top:40px;padding-top:16px;border-top:1px solid var(--line);
-  font-size:.79rem;color:var(--faint)}
-footer p{margin:5px 0}
-.health{font-family:var(--mono);font-size:.74rem}
-.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;
-  margin-top:4px}
-.kv div{padding:9px 11px;background:var(--bg);border:1px solid var(--line);border-radius:8px}
-.kv .k{font-size:.71rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
-.kv .v{font:600 1rem var(--mono);font-variant-numeric:tabular-nums;margin-top:2px}
-.corrbar{display:inline-block;width:70px;height:7px;border-radius:4px;
-  background:var(--line);overflow:hidden;vertical-align:middle}
-.corrbar i{display:block;height:100%;background:var(--accent)}
-.hide{display:none !important}
-#stale{display:none;margin:0 0 20px;padding:13px 16px;border-radius:10px;
-  border:1px solid var(--warn);background:var(--warn-soft);color:var(--ink)}
+.events .d{font:600 .74rem/1.5 var(--mono);color:var(--ink);min-width:52px;
+  white-space:nowrap;letter-spacing:.02em}
+.events .lab{flex:1}
+.events .when{font:500 .71rem/1.5 var(--mono);color:var(--muted);white-space:nowrap}
+
+/* ---- staleness banner -------------------------------------------------- */
+#stale{display:none;margin:18px 0 0;padding:13px 15px;border-radius:3px;
+  background:var(--surface);border:1px solid var(--rule-strong);
+  border-left:3px solid var(--warning)}
 #stale.show{display:block}
-#stale.bad{border-color:var(--down);background:transparent;
-  box-shadow:inset 0 0 0 2px var(--down)}
-#stale b{display:block;font-size:1rem;margin-bottom:3px}
-#stale span{font-size:.86rem;color:var(--muted)}
-@media (max-width:560px){
-  .wrap{padding:20px 14px 48px} h1{font-size:1.4rem}
-  .tape{grid-template-columns:repeat(auto-fit,minmax(132px,1fr))}
-  table{font-size:.83rem}
+#stale.bad{border-left-color:var(--critical)}
+#stale b{display:block;font-size:.92rem;margin-bottom:3px}
+#stale span{font-size:.8rem;color:var(--ink-2)}
+
+/* ---- footer ------------------------------------------------------------ */
+footer{margin-top:42px;padding-top:16px;border-top:1px solid var(--rule-strong);
+  font-size:.76rem;line-height:1.6;color:var(--muted);max-width:76ch}
+footer p{margin:5px 0}
+footer .health{font-family:var(--mono);font-size:.72rem;color:var(--ink-2)}
+.note{font-size:.79rem;color:var(--ink-2);margin:9px 0 0;max-width:70ch}
+.hide{display:none !important}
+
+@media (max-width:600px){
+  body{font-size:14px}
+  .wrap{padding:0 15px 52px}
+  .masthead h1{font-size:1.24rem}
+  .tape{grid-template-columns:repeat(auto-fit,minmax(142px,1fr))}
+  .tape .p{font-size:1.24rem}
+  table{font-size:.79rem}
+  td.read{min-width:170px}
 }
 @media print{.filters{display:none}body{background:#fff}}
 """
+
 
 # Runs in the reader's browser, not on any server — which is the whole point.
 # If the automatic build stops, nothing server-side is alive to warn you, but
@@ -1725,6 +1802,35 @@ JS = """
   apply('all');
 })();
 """
+
+
+
+def sparkline(points: list, direction: str) -> str:
+    """
+    A year of closes as a bare 2px line. No axis, no labels — it exists to show
+    shape, not value; the number beside it carries the value.
+    """
+    if not points or len(points) < 8:
+        return ""
+    lo, hi = min(points), max(points)
+    span = (hi - lo) or 1
+    n = len(points)
+    w, h = 100.0, 22.0
+    pad = 2.0
+    coords = []
+    for i, v in enumerate(points):
+        x = (i / (n - 1)) * w
+        y = pad + (1 - (v - lo) / span) * (h - 2 * pad)
+        coords.append(f"{x:.1f},{y:.1f}")
+    stroke = {"up": "var(--up)", "down": "var(--down)"}.get(direction, "var(--flat)")
+    return (f'<svg class="spark" viewBox="0 0 {w:.0f} {h:.0f}" preserveAspectRatio="none" '
+            f'aria-hidden="true" focusable="false">'
+            f'<polyline points="{" ".join(coords)}" fill="none" stroke="{stroke}" '
+            f'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" '
+            f'vector-effect="non-scaling-stroke"/></svg>')
+
+
+ARROWS = {"up": "\u25b2", "down": "\u25bc", "flat": "\u2013"}
 
 
 def render_quote_row(sym: str, label: str, kind: str, q: dict) -> str:
@@ -1870,22 +1976,27 @@ def build_html(data: dict, args, fred_available: bool) -> str:
     for sym, label, kind in TICKERS["headline"]:
         q = quotes.get(sym) or {}
         if not q.get("ok"):
-            tape.append(f'<div><div class="k">{esc(label)}</div>'
-                        f'<div class="p">n/a</div><div class="c flat">no data</div></div>')
+            tape.append(f'<div class="cell"><div class="k">{esc(label)}</div>'
+                        f'<div class="p">n/a</div><div class="d flat">no data</div></div>')
             continue
         if kind == "yield":
             price = f'{q["last"]:.2f}%'
             d = q.get("abs_1d")
             chg = f'{d * 100:+.0f} bp' if d is not None else "n/a"
-            cls = pct_class(d)
         else:
             price = fmt_num(q["last"])
             d = q.get("pct_1d")
             chg = f"{d:+.2f}%" if d is not None else "n/a"
-            cls = pct_class(d)
-        stale = ' <span class="stale">stale</span>' if q.get("degraded") else ""
-        tape.append(f'<div><div class="k">{esc(label)}</div><div class="p">{price}</div>'
-                    f'<div class="c {cls}">{chg}{stale}</div></div>')
+        cls = pct_class(d)
+        # The sign and the triangle carry direction, because red and green are
+        # indistinguishable to a colour-blind reader.
+        arrow = f'<span class="arrow" aria-hidden="true">{ARROWS[cls]}</span>'
+        stale = ' <span class="stale">cached</span>' if q.get("degraded") else ""
+        tape.append(
+            f'<div class="cell"><div class="k">{esc(label)}</div>'
+            f'<div class="p">{price}</div>'
+            f'<div class="d {cls}">{arrow}{chg}{stale}</div>'
+            f'{sparkline(q.get("spark") or [], cls)}</div>')
     tape_html = '<div class="tape">' + "".join(tape) + "</div>"
 
     # ---- Tier 1: what changed --------------------------------------------
@@ -1903,7 +2014,7 @@ def build_html(data: dict, args, fred_available: bool) -> str:
             f'<div><div class="k">{esc(m["label"])}</div>'
             f'<div class="v {m["dir"]}">{esc(m["text"])}</div></div>'
             for m in chg["moves"])
-        changed_html = (f'<div class="card accent"><h2>What changed{esc(since)}</h2>'
+        changed_html = (f'<div class="block"><h3>What changed{esc(since)}</h3>'
                         f'<div class="kv">{items}</div></div>')
 
     # ---- Tier 1: unusual moves ------------------------------------------
@@ -1917,9 +2028,9 @@ def build_html(data: dict, args, fred_available: bool) -> str:
             for f in flagged if f.get("pct") is not None)
         if items:
             unusual_html = (
-                '<div class="card warn"><h2>Unusual moves today</h2>'
-                '<h3>Bigger than normal against each instrument&rsquo;s own '
-                '20-day volatility &mdash; these are the moves worth a look</h3>'
+                '<div class="block flag"><h3>Unusual moves today</h3>'
+            '<p class=\"lede\">Bigger than normal against each instrument&rsquo;s own '
+                '20-day volatility &mdash; these are the moves worth a look</p>'
                 f'<div class="kv">{items}</div></div>')
 
     # ---- Tier 1: top stories --------------------------------------------
@@ -1956,9 +2067,14 @@ def build_html(data: dict, args, fred_available: bool) -> str:
     curve_html = ""
     if curve:
         shape, explain = curve_shape(curve)
-        cells = "".join(f'<div><div class="m">{esc(c["label"])}</div>'
-                        f'<div class="q">{c["price"]:.2f}</div></div>' for c in curve)
-        curve_html = (f'<div class="card"><h2>WTI forward curve</h2>'
+        prices = [c["price"] for c in curve]
+        lo, hi = min(prices), max(prices)
+        span = (hi - lo) or 1
+        cells = "".join(
+            f'<div class="col"><div class="q">{c["price"]:.2f}</div>'
+            f'<div class="bar" style="height:{18 + (c["price"] - lo) / span * 46:.0f}px"></div>'
+            f'<div class="m">{esc(c["label"])}</div></div>' for c in curve)
+        curve_html = (f'<div class="block"><h3>WTI forward curve</h3>'
                       f'<h3>What oil costs for delivery in each coming month</h3>'
                       f'<div class="curve">{cells}</div>'
                       f'<p class="note">{esc(explain)}</p></div>')
@@ -2014,23 +2130,23 @@ def build_html(data: dict, args, fred_available: bool) -> str:
     fred_html = ""
     if fred_available and (data.get("fred_rates") or data.get("fred_data")):
         fred_html = (
-            '<div class="card"><h2>Rates, inflation expectations &amp; credit</h2>'
-            '<h3>The real yield is the single most reliable driver of gold: it is '
+            '<div class="block"><h3>Rates, inflation expectations &amp; credit</h3>'
+            '<p class="lede">The real yield is the single most reliable driver of gold: it is '
             'what a bond pays you after inflation, so it is what gold costs you '
-            'to hold</h3>'
+            'to hold</p>'
             '<div class="tscroll"><table><thead><tr><th>Measure</th><th>Latest</th>'
             '<th>Change</th><th>As of</th></tr></thead><tbody>'
             + fred_rows(data.get("fred_rates", [])) +
             '</tbody></table></div></div>'
-            '<div class="card"><h2>Growth &amp; inflation data</h2>'
-            '<h3>Official US releases, year-over-year unless noted</h3>'
+            '<div class="block"><h3>Growth &amp; inflation data</h3>'
+            '<p class="lede">Official US releases, year-over-year unless noted</p>'
             '<div class="tscroll"><table><thead><tr><th>Indicator</th><th>Latest</th>'
             '<th>vs prior</th><th>As of</th></tr></thead><tbody>'
             + fred_rows(data.get("fred_data", [])) +
             '</tbody></table></div></div>')
     elif not fred_available:
         fred_html = (
-            '<div class="card warn"><h2>Rates, inflation expectations &amp; credit</h2>'
+            '<div class="block flag"><h3>Rates, inflation expectations &amp; credit</h3>'
             '<p class="note">Not shown: these need a free FRED API key. Get one at '
             '<a href="https://fred.stlouisfed.org/docs/api/api_key.html" '
             'target="_blank" rel="noopener">fred.stlouisfed.org</a>, then run:<br>'
@@ -2042,10 +2158,10 @@ def build_html(data: dict, args, fred_available: bool) -> str:
     liquidity_html = ""
     if data.get("fred_liquidity"):
         liquidity_html = (
-            '<div class="card"><h2>Liquidity &amp; financial conditions</h2>'
-            '<h3>Prices tell you what happened; these tell you how easy money is '
+            '<div class="block"><h3>Liquidity &amp; financial conditions</h3>'
+            '<p class="lede">Prices tell you what happened; these tell you how easy money is '
             '&mdash; the regime that decides whether a rally holds. Negative '
-            'financial-conditions numbers mean looser than average.</h3>'
+            'financial-conditions numbers mean looser than average.</p>'
             '<div class="tscroll"><table><thead><tr><th>Measure</th><th>Latest</th>'
             '<th>Change</th><th>As of</th></tr></thead><tbody>'
             + fred_rows(data["fred_liquidity"]) +
@@ -2063,21 +2179,24 @@ def build_html(data: dict, args, fred_available: bool) -> str:
             expected_negative = ("yield" in r["label"].lower() or "Dollar" in r["label"])
             normal = (c <= -0.25) if expected_negative else (c >= 0.5)
             cls = "up" if normal else ("down" if abs(c) >= 0.25 else "flat")
-            bar = int(abs(c) * 100)
+            width = min(50.0, abs(c) * 50.0)
+            arm = (f'<i class="neg" style="width:{width:.1f}%"></i>' if c < 0
+                   else f'<i class="pos" style="width:{width:.1f}%"></i>')
             rows.append(
                 f'<tr><td>Gold vs {esc(r["label"])}</td>'
                 f'<td class="v {cls}">{c:+.2f}</td>'
-                f'<td><span class="corrbar"><i style="width:{bar}%"></i></span></td>'
-                f'<td class="note">{esc(r["reading"])}</td></tr>')
+                f'<td><span class="corr">{arm}</span></td>'
+                f'<td class="read">{esc(r["reading"])}</td></tr>')
         rel_html = (
-            '<div class="card"><h2>Is gold behaving normally?</h2>'
-            f'<h3>How closely gold has moved with each driver over the last '
+            '<div class="block"><h3>Is gold behaving normally?</h3>'
+            f'<p class="lede">How closely gold has moved with each driver over the last '
             f'{CORRELATION_WINDOW} trading days. &minus;1.00 means they move exactly '
             'opposite, +1.00 exactly together, 0.00 means no relationship. Gold is '
             '<em>supposed</em> to move against real yields and the dollar &mdash; when '
-            'it stops, that itself is the story.</h3>'
+            'it stops, that itself is the story.</p>'
             '<div class="tscroll"><table><thead><tr><th>Relationship</th>'
-            '<th>Correlation</th><th>Strength</th><th>What it means</th></tr></thead>'
+            '<th>Correlation</th><th>Strength</th>'
+            '<th style="text-align:left">What it means</th></tr></thead>'
             f'<tbody>{"".join(rows)}</tbody></table></div></div>')
 
     # ---- Tier 2: CFTC positioning ---------------------------------------
@@ -2093,10 +2212,10 @@ def build_html(data: dict, args, fred_available: bool) -> str:
             f'{fmt_signed(c.get("chg_4w"), 0)}</td>'
             f'<td class="v">{esc(c["date"])}</td></tr>' for c in cftc)
         cftc_html = (
-            '<div class="card"><h2>Speculative positioning (CFTC)</h2>'
-            '<h3>Net futures position held by speculators. A large positive number '
+            '<div class="block"><h3>Speculative positioning (CFTC)</h3>'
+            '<p class="lede">Net futures position held by speculators. A large positive number '
             'means the bullish trade is already crowded, which cuts both ways '
-            '&mdash; published weekly, with a few days&rsquo; lag</h3>'
+            '&mdash; published weekly, with a few days&rsquo; lag</p>'
             '<div class="tscroll"><table><thead><tr><th>Market</th><th>Net position</th>'
             '<th>1 week</th><th>4 weeks</th><th>As of</th></tr></thead>'
             f'<tbody>{rows}</tbody></table></div></div>')
@@ -2108,7 +2227,7 @@ def build_html(data: dict, args, fred_available: bool) -> str:
                          thb_q.get("last") if thb_q and thb_q.get("ok") else None)
     if tg:
         thai_html = (
-            '<div class="card"><h2>Gold in Thai terms</h2>'
+            '<div class="block"><h3>Gold in Thai terms</h3>'
             '<div class="kv">'
             f'<div><div class="k">Per baht-weight</div>'
             f'<div class="v">{fmt_num(tg["thb_per_baht_weight"], 0)} THB</div></div>'
@@ -2145,7 +2264,7 @@ def build_html(data: dict, args, fred_available: bool) -> str:
                 f'<span>{esc(ev["label"])}<br><span class="note">'
                 f'{esc(ev["time_note"])} &middot; {when}</span></span></li>')
     events_html = (
-        '<div class="card"><h2>Coming up</h2>'
+        '<div class="block"><h3>Coming up</h3>'
         + (f'<ul class="events">{"".join(upcoming[:10])}</ul>' if upcoming else
            '<p class="note">Nothing scheduled in the next few months. US data '
            'releases load automatically once a FRED key is set; central bank '
@@ -2198,53 +2317,55 @@ def build_html(data: dict, args, fred_available: bool) -> str:
 
 <div id="stale" role="status"></div>
 
-<header class="top">
-  <h1>Economic Overview</h1>
-  <p class="sub">{built.strftime('%A %d %B %Y, %H:%M')} Bangkok time
-  {' &middot; <strong>DEMO DATA</strong>' if args.demo else ''}</p>
+<header class="masthead">
+  <p class="kicker">Daily macro briefing{' &middot; demo data' if args.demo else ''}</p>
+  <div class="mastrow">
+    <h1>Economic Overview</h1>
+    <span class="stamp">{built.strftime('%a %d %b %Y &middot; %H:%M')} ICT</span>
+  </div>
 </header>
 
-<section class="tier">
-  <div class="tier-label"><span class="n">Tier 1</span>
-    <h2>The 60-second read</h2></div>
+<section class="band">
+  <div class="bandhead"><span class="n">01</span><h2>The tape</h2>
+    <span class="r">60-second read</span></div>
   {tape_html}
   {changed_html}
   {unusual_html}
-  <div class="card">
+  <div class="block">
     <h2>Top stories</h2>
-    <h3>Ranked by how many sources carry the story and how much it moves markets</h3>
+    <p class="lede">Ranked by how many sources carry the story and how much it moves markets</p>
     <ol class="stories">{top_html}</ol>
   </div>
 </section>
 
-<section class="tier">
-  <div class="tier-label"><span class="n">Tier 2</span>
-    <h2>The detail</h2></div>
+<section class="band">
+  <div class="bandhead"><span class="n">02</span><h2>Markets &amp; macro</h2>
+    <span class="r">the detail</span></div>
 
   {fred_html}
 
-  <div class="card"><h2>Equities</h2>{render_table('equities', quotes)}</div>
-  <div class="card"><h2>Rates &amp; policy expectations</h2>
-    <h3>Fed funds futures show the policy rate the market expects, derived from
-    the futures price</h3>
+  <div class="block"><h3>Equities</h3>{render_table('equities', quotes)}</div>
+  <div class="block"><h3>Rates &amp; policy expectations</h3>
+    <p class="lede">Fed funds futures show the policy rate the market expects, derived from
+    the futures price</p>
     {render_table('rates', quotes)}</div>
   {liquidity_html}
-  <div class="card"><h2>Currencies</h2>{render_table('fx', quotes)}</div>
-  <div class="card"><h2>Energy</h2>{render_table('energy', quotes)}</div>
+  <div class="block"><h3>Currencies</h3>{render_table('fx', quotes)}</div>
+  <div class="block"><h3>Energy</h3>{render_table('energy', quotes)}</div>
   {curve_html}
-  <div class="card"><h2>Commodities</h2>{render_table('commodities', quotes)}</div>
+  <div class="block"><h3>Commodities</h3>{render_table('commodities', quotes)}</div>
   {rel_html}
   {thai_html}
-  <div class="card"><h2>Risk appetite &amp; volatility</h2>
-    <h3>When these rise together, investors are getting defensive</h3>
+  <div class="block"><h3>Risk appetite &amp; volatility</h3>
+    <p class="lede">When these rise together, investors are getting defensive</p>
     {render_table('risk', quotes)}</div>
   {cftc_html}
   {events_html}
 </section>
 
-<section class="tier">
-  <div class="tier-label"><span class="n">Tier 3</span>
-    <h2>All headlines</h2></div>
+<section class="band">
+  <div class="bandhead"><span class="n">03</span><h2>Headlines</h2>
+    <span class="r">filter by theme</span></div>
   {filters_html}
   {news_block}
 </section>
