@@ -1,6 +1,6 @@
 # Economic Overview
 
-**Read it here: https://khunb00.github.io/world-briefing/**
+**Read it here: https://khunb00.github.io/economic-overview/**
 
 Add that to your phone's Home Screen and it behaves like an app.
 
@@ -45,7 +45,7 @@ workflow" restarts it. Pushing any change also resets the clock.
 To rebuild right now instead of waiting for the hour:
 
 ```bash
-gh workflow run briefing.yml --repo KhunB00/world-briefing
+gh workflow run briefing.yml --repo KhunB00/economic-overview
 ```
 
 ## Turn on the US data section
@@ -63,7 +63,7 @@ Because the briefing now runs in the cloud, the key goes into GitHub's encrypted
 secrets, not a file:
 
 ```bash
-gh secret set FRED_API_KEY --repo KhunB00/world-briefing
+gh secret set FRED_API_KEY --repo KhunB00/economic-overview
 ```
 
 Paste the key when prompted. It is encrypted, never appears on the page, and is

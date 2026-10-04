@@ -1,3 +1,14 @@
+# Scheduling (superseded)
+
+> **You don't need any of this.** The Economic Overview now rebuilds itself every
+> hour on GitHub's servers — see `.github/workflows/briefing.yml`. Your Mac is
+> not involved, which is why it keeps updating while you're travelling.
+>
+> This file is kept only for the case where you want a *local* scheduled build
+> as well. The launchd job described below is **not installed**.
+
+---
+
 # Run the briefing automatically every hour (macOS)
 
 Your Mac uses `launchd` for scheduled jobs. The file below is already written

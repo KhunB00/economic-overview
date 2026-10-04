@@ -1501,7 +1501,7 @@ STALE_JS_TEMPLATE = """
   el.className = hours >= 36 ? 'show bad' : 'show';
   el.innerHTML = '<b>This briefing is ' + age + ' old.</b>' +
     '<span>The hourly build has not run. The numbers below are stale \\u2014 ' +
-    'check github.com/KhunB00/world-briefing for a failed or paused build.</span>';
+    'check github.com/KhunB00/economic-overview for a failed or paused build.</span>';
 })();
 """
 
