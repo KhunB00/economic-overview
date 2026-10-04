@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-World Economy Briefing — a daily macro dashboard as a single static HTML page.
+Economic Overview — a daily macro dashboard as a single static HTML page.
 
 WHAT THIS IS
     A once-a-day briefing you read in ~5 minutes. Top fold = what you need to
@@ -1927,7 +1927,7 @@ def build_html(data: dict, args, fred_available: bool) -> str:
 <html lang="en"><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>World Economy Briefing &mdash; {built.strftime('%d %b %Y')}</title>
+<title>Economic Overview &mdash; {built.strftime('%d %b %Y')}</title>
 <meta name="description" content="Daily macro briefing: markets, policy, data and headlines.">
 <style>{CSS}</style>
 </head><body><div class="wrap">
@@ -1935,7 +1935,7 @@ def build_html(data: dict, args, fred_available: bool) -> str:
 <div id="stale" role="status"></div>
 
 <header class="top">
-  <h1>World Economy Briefing</h1>
+  <h1>Economic Overview</h1>
   <p class="sub">{built.strftime('%A %d %B %Y, %H:%M')} Bangkok time
   {' &middot; <strong>DEMO DATA</strong>' if args.demo else ''}</p>
 </header>
@@ -2024,7 +2024,7 @@ def check_data_report(quotes: dict, fred_rows: list, cftc: list, ok_feeds, faile
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description="Build the daily World Economy Briefing.")
+    ap = argparse.ArgumentParser(description="Build the daily Economic Overview.")
     ap.add_argument("--open", action="store_true", help="open the page when built")
     ap.add_argument("--demo", action="store_true", help="build from fake data, no internet")
     ap.add_argument("--hours", type=int, default=None,

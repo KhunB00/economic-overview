@@ -1,4 +1,4 @@
-# World Economy Briefing
+# Economic Overview
 
 **Read it here: https://khunb00.github.io/world-briefing/**
 
