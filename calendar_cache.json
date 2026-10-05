@@ -1,21 +1,6 @@
 {
- "fetched_at": "2026-10-05T03:08:55+00:00",
+ "fetched_at": "2026-10-05T04:11:33+00:00",
  "events": [
-  {
-   "date": "2026-10-15",
-   "time_note": "19:30 BKK",
-   "label": "US retail sales"
-  },
-  {
-   "date": "2026-11-17",
-   "time_note": "20:30 BKK",
-   "label": "US retail sales"
-  },
-  {
-   "date": "2026-12-16",
-   "time_note": "20:30 BKK",
-   "label": "US retail sales"
-  },
   {
    "date": "2026-10-14",
    "time_note": "19:30 BKK",
@@ -85,6 +70,21 @@
    "date": "2026-12-15",
    "time_note": "20:30 BKK",
    "label": "US producer prices (PPI)"
+  },
+  {
+   "date": "2026-10-15",
+   "time_note": "19:30 BKK",
+   "label": "US retail sales"
+  },
+  {
+   "date": "2026-11-17",
+   "time_note": "20:30 BKK",
+   "label": "US retail sales"
+  },
+  {
+   "date": "2026-12-16",
+   "time_note": "20:30 BKK",
+   "label": "US retail sales"
   },
   {
    "date": "2026-10-08",
