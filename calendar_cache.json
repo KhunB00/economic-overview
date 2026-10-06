@@ -1,5 +1,5 @@
 {
- "fetched_at": "2026-10-06T11:08:44+00:00",
+ "fetched_at": "2026-10-06T12:10:18+00:00",
  "events": [
   {
    "date": "2026-10-14",
@@ -32,6 +32,21 @@
    "label": "US core PCE \u2014 the Fed's preferred inflation gauge"
   },
   {
+   "date": "2026-10-15",
+   "time_note": "19:30 BKK",
+   "label": "US retail sales"
+  },
+  {
+   "date": "2026-11-17",
+   "time_note": "20:30 BKK",
+   "label": "US retail sales"
+  },
+  {
+   "date": "2026-12-16",
+   "time_note": "20:30 BKK",
+   "label": "US retail sales"
+  },
+  {
    "date": "2026-10-29",
    "time_note": "19:30 BKK",
    "label": "US GDP"
@@ -55,21 +70,6 @@
    "date": "2026-12-04",
    "time_note": "20:30 BKK",
    "label": "US jobs report (non-farm payrolls)"
-  },
-  {
-   "date": "2026-10-15",
-   "time_note": "19:30 BKK",
-   "label": "US retail sales"
-  },
-  {
-   "date": "2026-11-17",
-   "time_note": "20:30 BKK",
-   "label": "US retail sales"
-  },
-  {
-   "date": "2026-12-16",
-   "time_note": "20:30 BKK",
-   "label": "US retail sales"
   },
   {
    "date": "2026-10-15",
