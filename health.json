@@ -1,6 +1,6 @@
 {
- "built_at": "2026-10-09T06:11:49+00:00",
- "feeds_ok": 26,
+ "built_at": "2026-10-09T07:11:55+00:00",
+ "feeds_ok": 25,
  "feeds_total": 26,
  "prices_live": 57,
  "prices_total": 57,
@@ -9,6 +9,8 @@
  "cftc_ok": 7,
  "cftc_total": 7,
  "calendar_events": 29,
- "stories": 591,
- "failed_feeds": []
+ "stories": 593,
+ "failed_feeds": [
+  "US Federal Reserve"
+ ]
 }
