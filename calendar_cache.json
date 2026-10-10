@@ -1,20 +1,30 @@
 {
- "fetched_at": "2026-10-10T06:09:28+00:00",
+ "fetched_at": "2026-10-10T07:08:58+00:00",
  "events": [
+  {
+   "date": "2026-11-06",
+   "time_note": "20:30 BKK",
+   "label": "US jobs report (non-farm payrolls)"
+  },
+  {
+   "date": "2026-12-04",
+   "time_note": "20:30 BKK",
+   "label": "US jobs report (non-farm payrolls)"
+  },
   {
    "date": "2026-10-29",
    "time_note": "19:30 BKK",
-   "label": "US core PCE \u2014 the Fed's preferred inflation gauge"
+   "label": "US GDP"
   },
   {
    "date": "2026-11-25",
    "time_note": "20:30 BKK",
-   "label": "US core PCE \u2014 the Fed's preferred inflation gauge"
+   "label": "US GDP"
   },
   {
    "date": "2026-12-23",
    "time_note": "20:30 BKK",
-   "label": "US core PCE \u2014 the Fed's preferred inflation gauge"
+   "label": "US GDP"
   },
   {
    "date": "2026-10-14",
@@ -32,6 +42,21 @@
    "label": "US inflation (CPI)"
   },
   {
+   "date": "2026-10-29",
+   "time_note": "19:30 BKK",
+   "label": "US core PCE \u2014 the Fed's preferred inflation gauge"
+  },
+  {
+   "date": "2026-11-25",
+   "time_note": "20:30 BKK",
+   "label": "US core PCE \u2014 the Fed's preferred inflation gauge"
+  },
+  {
+   "date": "2026-12-23",
+   "time_note": "20:30 BKK",
+   "label": "US core PCE \u2014 the Fed's preferred inflation gauge"
+  },
+  {
    "date": "2026-10-15",
    "time_note": "19:30 BKK",
    "label": "US retail sales"
@@ -45,31 +70,6 @@
    "date": "2026-12-16",
    "time_note": "20:30 BKK",
    "label": "US retail sales"
-  },
-  {
-   "date": "2026-10-29",
-   "time_note": "19:30 BKK",
-   "label": "US GDP"
-  },
-  {
-   "date": "2026-11-25",
-   "time_note": "20:30 BKK",
-   "label": "US GDP"
-  },
-  {
-   "date": "2026-12-23",
-   "time_note": "20:30 BKK",
-   "label": "US GDP"
-  },
-  {
-   "date": "2026-11-06",
-   "time_note": "20:30 BKK",
-   "label": "US jobs report (non-farm payrolls)"
-  },
-  {
-   "date": "2026-12-04",
-   "time_note": "20:30 BKK",
-   "label": "US jobs report (non-farm payrolls)"
   },
   {
    "date": "2026-10-15",
