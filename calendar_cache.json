@@ -1,5 +1,5 @@
 {
- "fetched_at": "2026-10-12T08:11:57+00:00",
+ "fetched_at": "2026-10-12T09:11:22+00:00",
  "events": [
   {
    "date": "2026-10-29",
@@ -30,16 +30,6 @@
    "date": "2026-12-15",
    "time_note": "20:30 BKK",
    "label": "US producer prices (PPI)"
-  },
-  {
-   "date": "2026-11-06",
-   "time_note": "20:30 BKK",
-   "label": "US jobs report (non-farm payrolls)"
-  },
-  {
-   "date": "2026-12-04",
-   "time_note": "20:30 BKK",
-   "label": "US jobs report (non-farm payrolls)"
   },
   {
    "date": "2026-10-14",
@@ -85,6 +75,16 @@
    "date": "2026-12-23",
    "time_note": "20:30 BKK",
    "label": "US GDP"
+  },
+  {
+   "date": "2026-11-06",
+   "time_note": "20:30 BKK",
+   "label": "US jobs report (non-farm payrolls)"
+  },
+  {
+   "date": "2026-12-04",
+   "time_note": "20:30 BKK",
+   "label": "US jobs report (non-farm payrolls)"
   },
   {
    "date": "2026-10-15",
