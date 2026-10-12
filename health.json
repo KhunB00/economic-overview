@@ -1,6 +1,6 @@
 {
- "built_at": "2026-10-12T09:11:25+00:00",
- "feeds_ok": 23,
+ "built_at": "2026-10-12T10:11:25+00:00",
+ "feeds_ok": 26,
  "feeds_total": 26,
  "prices_live": 57,
  "prices_total": 57,
@@ -9,10 +9,6 @@
  "cftc_ok": 7,
  "cftc_total": 7,
  "calendar_events": 29,
- "stories": 433,
- "failed_feeds": [
-  "Reuters / wires",
-  "Central bank wires",
-  "Conflict & security"
- ]
+ "stories": 560,
+ "failed_feeds": []
 }
