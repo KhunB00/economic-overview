@@ -1,6 +1,21 @@
 {
- "fetched_at": "2026-10-17T03:18:54+00:00",
+ "fetched_at": "2026-10-17T04:18:13+00:00",
  "events": [
+  {
+   "date": "2026-10-29",
+   "time_note": "19:30 BKK",
+   "label": "US core PCE \u2014 the Fed's preferred inflation gauge"
+  },
+  {
+   "date": "2026-11-25",
+   "time_note": "20:30 BKK",
+   "label": "US core PCE \u2014 the Fed's preferred inflation gauge"
+  },
+  {
+   "date": "2026-12-23",
+   "time_note": "20:30 BKK",
+   "label": "US core PCE \u2014 the Fed's preferred inflation gauge"
+  },
   {
    "date": "2026-11-10",
    "time_note": "20:30 BKK",
@@ -20,21 +35,6 @@
    "date": "2026-12-15",
    "time_note": "20:30 BKK",
    "label": "US producer prices (PPI)"
-  },
-  {
-   "date": "2026-10-29",
-   "time_note": "19:30 BKK",
-   "label": "US core PCE \u2014 the Fed's preferred inflation gauge"
-  },
-  {
-   "date": "2026-11-25",
-   "time_note": "20:30 BKK",
-   "label": "US core PCE \u2014 the Fed's preferred inflation gauge"
-  },
-  {
-   "date": "2026-12-23",
-   "time_note": "20:30 BKK",
-   "label": "US core PCE \u2014 the Fed's preferred inflation gauge"
   },
   {
    "date": "2026-11-17",
