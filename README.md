@@ -120,6 +120,13 @@ Three alarms, covering three different ways this can fail:
 **1. The script crashes.** GitHub emails you when a scheduled job fails. On by
 default, nothing to set up.
 
+**Not every feed counts equally.** The two Google News "backstop" queries get
+rate-limited at random from GitHub's servers — their runners share datacenter
+IPs that Google throttles. On 17 Oct 2026 all nine Google queries failed at once
+in CI while working fine from a home connection. Those feeds are now marked
+non-critical: they still appear on the page when they work, but they never
+trigger an alarm. The health gate judges only the 26 real publisher feeds.
+
 **2. The data quietly rots.** The page never crashes on purpose — it falls back
 to cached values and publishes anyway, which is right for you as a reader but
 would hide a slow decline. So `health_gate.py` runs *after* publishing: the page

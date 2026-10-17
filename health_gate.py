@@ -28,12 +28,16 @@ problems = []
 def ratio(ok, total):
     return (ok / total) if total else 1.0
 
-feeds = ratio(h["feeds_ok"], h["feeds_total"])
+# Judge health on the feeds that matter. The Google News backstops get
+# rate-limited from CI at random, and a blip there is not a sick briefing.
+crit_ok = h.get("feeds_critical_ok", h["feeds_ok"])
+crit_total = h.get("feeds_critical_total", h["feeds_total"])
+feeds = ratio(crit_ok, crit_total)
 prices = ratio(h["prices_live"], h["prices_total"])
 
 if feeds < MIN_FEED_FRACTION:
     problems.append(
-        f"news feeds: only {h['feeds_ok']}/{h['feeds_total']} working "
+        f"news feeds: only {crit_ok}/{crit_total} of the main feeds working "
         f"({feeds:.0%}); failed: {', '.join(h['failed_feeds']) or 'unknown'}")
 if prices < MIN_PRICE_FRACTION:
     problems.append(
@@ -46,7 +50,8 @@ if h["fred_total"] and h["fred_ok"] == 0:
 if h["cftc_ok"] == 0:
     problems.append("CFTC: positioning data unavailable")
 
-summary = (f"feeds {h['feeds_ok']}/{h['feeds_total']} · "
+summary = (f"feeds {crit_ok}/{crit_total} main"
+           f" (+{h['feeds_ok'] - crit_ok} backstop) · "
            f"prices {h['prices_live']}/{h['prices_total']} · "
            f"FRED {h['fred_ok']}/{h['fred_total']} · "
            f"CFTC {h['cftc_ok']}/{h['cftc_total']} · "

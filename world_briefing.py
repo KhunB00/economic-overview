@@ -46,6 +46,7 @@ import os
 import re
 import statistics
 import sys
+import time
 import unicodedata
 import warnings
 import webbrowser
@@ -410,34 +411,41 @@ FEEDS = {
         {"name": "Bangkok Post Business", "url": "https://www.bangkokpost.com/rss/data/business.xml",
          "window_h": 48, "paywall": "none"},
     ],
-    # Google News search acts as a free backstop: it finds whichever outlet
-    # covered a theme without a paywall and links straight to the publisher.
-    "Wire backstop": [
-        {"name": "Reuters / wires", "url": "https://news.google.com/rss/search?q=when:1d+reuters+economy+OR+markets&hl=en-US&gl=US&ceid=US:en",
-         "window_h": 30, "paywall": "none"},
-        {"name": "Central bank wires", "url": "https://news.google.com/rss/search?q=when:2d+%22central+bank%22+OR+%22interest+rates%22+decision&hl=en-US&gl=US&ceid=US:en",
-         "window_h": 48, "paywall": "none"},
-        {"name": "Oil & energy wires", "url": "https://news.google.com/rss/search?q=when:1d+oil+prices+OR+OPEC&hl=en-US&gl=US&ceid=US:en",
-         "window_h": 30, "paywall": "none"},
-        {"name": "Thailand economy wires", "url": "https://news.google.com/rss/search?q=when:2d+Thailand+economy+OR+baht&hl=en-US&gl=US&ceid=US:en",
-         "window_h": 48, "paywall": "none"},
-    ],
     "Geopolitics & supply": [
-        {"name": "Sanctions & export controls",
-         "url": "https://news.google.com/rss/search?q=when:2d+sanctions+OR+%22export+controls%22+OR+embargo&hl=en-US&gl=US&ceid=US:en",
-         "window_h": 48, "paywall": "none"},
-        {"name": "Supply chains & shipping",
-         "url": "https://news.google.com/rss/search?q=when:2d+%22supply+chain%22+OR+shipping+OR+%22Red+Sea%22+OR+%22Suez%22+OR+%22Hormuz%22&hl=en-US&gl=US&ceid=US:en",
-         "window_h": 48, "paywall": "none"},
-        {"name": "Conflict & security",
-         "url": "https://news.google.com/rss/search?q=when:2d+(war+OR+strike+OR+attack)+(oil+OR+trade+OR+economy+OR+shipping)&hl=en-US&gl=US&ceid=US:en",
-         "window_h": 48, "paywall": "none"},
-        {"name": "Tariffs & trade policy",
-         "url": "https://news.google.com/rss/search?q=when:2d+tariffs+OR+%22trade+war%22+OR+%22trade+deal%22&hl=en-US&gl=US&ceid=US:en",
-         "window_h": 48, "paywall": "none"},
-        {"name": "Central bank gold buying",
-         "url": "https://news.google.com/rss/search?q=when:7d+%22central+bank%22+gold+reserves+OR+bullion&hl=en-US&gl=US&ceid=US:en",
-         "window_h": 168, "paywall": "none"},
+        {"name": "Al Jazeera", "url": "https://www.aljazeera.com/xml/rss/all.xml",
+         "window_h": 36, "paywall": "none"},
+        {"name": "BBC World", "url": "https://feeds.bbci.co.uk/news/world/rss.xml",
+         "window_h": 36, "paywall": "none"},
+        {"name": "Guardian World", "url": "https://www.theguardian.com/world/rss",
+         "window_h": 36, "paywall": "none"},
+        # Shipping is where a supply shock appears before the general press
+        # picks it up — chokepoints, rerouting, freight rates.
+        {"name": "gCaptain (shipping)", "url": "https://gcaptain.com/feed/",
+         "window_h": 72, "paywall": "none"},
+        {"name": "Splash247 (shipping)", "url": "https://splash247.com/feed/",
+         "window_h": 72, "paywall": "none"},
+        {"name": "Mining.com (metals supply)", "url": "https://www.mining.com/feed/",
+         "window_h": 72, "paywall": "none"},
+        {"name": "US Trade Representative", "url": "https://ustr.gov/rss.xml",
+         "window_h": 240, "paywall": "none", "primary": True},
+        {"name": "WTO", "url": "https://www.wto.org/library/rss/latest_news_e.xml",
+         "window_h": 240, "paywall": "none", "primary": True},
+        {"name": "CNBC Energy",
+         "url": "https://search.cnbc.com/rs/search/combinedcms/view.xml?partnerId=wrss01&id=19836768",
+         "window_h": 72, "paywall": "none"},
+    ],
+    # Google News is a useful free backstop, but GitHub's runners share
+    # datacenter IPs that Google rate-limits: on 17 Oct 2026 all nine of our
+    # queries failed at once from CI while working fine from a home connection.
+    # Cut to two, and marked non-critical so a rate-limited blip never raises
+    # a false alarm about the briefing's health.
+    "Wire backstop": [
+        {"name": "Wire roundup",
+         "url": "https://news.google.com/rss/search?q=when:1d+reuters+economy+OR+markets&hl=en-US&gl=US&ceid=US:en",
+         "window_h": 30, "paywall": "none", "critical": False},
+        {"name": "Thailand wires",
+         "url": "https://news.google.com/rss/search?q=when:2d+Thailand+economy+OR+baht&hl=en-US&gl=US&ceid=US:en",
+         "window_h": 48, "paywall": "none", "critical": False},
     ],
 }
 
@@ -1309,7 +1317,21 @@ def fetch_feed(feed: dict, group: str, window_override: int | None) -> dict:
     window_h = window_override or feed.get("window_h", 24)
     cutoff = dt.datetime.now(UTC) - dt.timedelta(hours=window_h)
     try:
-        resp = http_get(feed["url"])
+        # A single retry: rate limits (429) and brief timeouts usually clear,
+        # and a one-off blip should not look like a dead feed.
+        resp = None
+        for attempt in (1, 2):
+            try:
+                resp = http_get(feed["url"])
+                if resp.status_code == 200:
+                    break
+            except Exception:
+                resp = None
+            if attempt == 1:
+                time.sleep(2.5)
+        if resp is None:
+            out["error"] = "no response"
+            return out
         if resp.status_code != 200:
             out["error"] = f"http {resp.status_code}"
             return out
@@ -2689,6 +2711,13 @@ def main() -> int:
             "calendar_events": len(data.get("calendar", [])),
             "stories": len(data.get("clusters", [])),
             "failed_feeds": [f["name"] for f in data.get("failed", [])],
+            # Backstop feeds (Google News) are nice to have, not load-bearing:
+            # counted separately so a rate-limited blip is not an alarm.
+            "feeds_critical_total": sum(1 for v in FEEDS.values() for f in v
+                                        if f.get("critical", True)),
+            "feeds_critical_ok": sum(
+                1 for v in FEEDS.values() for f in v
+                if f.get("critical", True) and f["name"] in set(data.get("ok_feeds", []))),
         })
 
     html_out = build_html(data, args, fred_available)
