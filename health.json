@@ -1,7 +1,7 @@
 {
- "built_at": "2026-10-17T14:15:08+00:00",
- "feeds_ok": 17,
- "feeds_total": 26,
+ "built_at": "2026-10-17T14:40:23+00:00",
+ "feeds_ok": 28,
+ "feeds_total": 28,
  "prices_live": 57,
  "prices_total": 57,
  "fred_ok": 19,
@@ -9,16 +9,8 @@
  "cftc_ok": 7,
  "cftc_total": 7,
  "calendar_events": 25,
- "stories": 170,
- "failed_feeds": [
-  "Central bank wires",
-  "Supply chains & shipping",
-  "Reuters / wires",
-  "Sanctions & export controls",
-  "Conflict & security",
-  "Thailand economy wires",
-  "Oil & energy wires",
-  "Tariffs & trade policy",
-  "Central bank gold buying"
- ]
+ "stories": 358,
+ "failed_feeds": [],
+ "feeds_critical_total": 26,
+ "feeds_critical_ok": 26
 }
