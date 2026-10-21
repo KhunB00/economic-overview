@@ -1,36 +1,6 @@
 {
- "fetched_at": "2026-10-21T06:23:58+00:00",
+ "fetched_at": "2026-10-21T07:34:56+00:00",
  "events": [
-  {
-   "date": "2026-11-10",
-   "time_note": "20:30 BKK",
-   "label": "US inflation (CPI)"
-  },
-  {
-   "date": "2026-12-10",
-   "time_note": "20:30 BKK",
-   "label": "US inflation (CPI)"
-  },
-  {
-   "date": "2026-11-06",
-   "time_note": "20:30 BKK",
-   "label": "US jobs report (non-farm payrolls)"
-  },
-  {
-   "date": "2026-12-04",
-   "time_note": "20:30 BKK",
-   "label": "US jobs report (non-farm payrolls)"
-  },
-  {
-   "date": "2026-11-17",
-   "time_note": "20:30 BKK",
-   "label": "US retail sales"
-  },
-  {
-   "date": "2026-12-16",
-   "time_note": "20:30 BKK",
-   "label": "US retail sales"
-  },
   {
    "date": "2026-10-29",
    "time_note": "19:30 BKK",
@@ -45,6 +15,36 @@
    "date": "2026-12-23",
    "time_note": "20:30 BKK",
    "label": "US core PCE \u2014 the Fed's preferred inflation gauge"
+  },
+  {
+   "date": "2026-11-06",
+   "time_note": "20:30 BKK",
+   "label": "US jobs report (non-farm payrolls)"
+  },
+  {
+   "date": "2026-12-04",
+   "time_note": "20:30 BKK",
+   "label": "US jobs report (non-farm payrolls)"
+  },
+  {
+   "date": "2026-11-10",
+   "time_note": "20:30 BKK",
+   "label": "US inflation (CPI)"
+  },
+  {
+   "date": "2026-12-10",
+   "time_note": "20:30 BKK",
+   "label": "US inflation (CPI)"
+  },
+  {
+   "date": "2026-11-17",
+   "time_note": "20:30 BKK",
+   "label": "US retail sales"
+  },
+  {
+   "date": "2026-12-16",
+   "time_note": "20:30 BKK",
+   "label": "US retail sales"
   },
   {
    "date": "2026-10-29",
