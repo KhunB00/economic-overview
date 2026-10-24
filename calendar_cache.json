@@ -1,5 +1,5 @@
 {
- "fetched_at": "2026-10-24T11:47:49+00:00",
+ "fetched_at": "2026-10-24T15:13:46+00:00",
  "events": [
   {
    "date": "2026-11-10",
@@ -12,14 +12,19 @@
    "label": "US inflation (CPI)"
   },
   {
-   "date": "2026-11-17",
-   "time_note": "20:30 BKK",
-   "label": "US retail sales"
+   "date": "2026-10-29",
+   "time_note": "19:30 BKK",
+   "label": "US GDP"
   },
   {
-   "date": "2026-12-16",
+   "date": "2026-11-25",
    "time_note": "20:30 BKK",
-   "label": "US retail sales"
+   "label": "US GDP"
+  },
+  {
+   "date": "2026-12-23",
+   "time_note": "20:30 BKK",
+   "label": "US GDP"
   },
   {
    "date": "2026-11-13",
@@ -45,6 +50,16 @@
    "date": "2026-12-23",
    "time_note": "20:30 BKK",
    "label": "US core PCE \u2014 the Fed's preferred inflation gauge"
+  },
+  {
+   "date": "2026-11-17",
+   "time_note": "20:30 BKK",
+   "label": "US retail sales"
+  },
+  {
+   "date": "2026-12-16",
+   "time_note": "20:30 BKK",
+   "label": "US retail sales"
   },
   {
    "date": "2026-11-06",
@@ -105,21 +120,6 @@
    "date": "2026-12-31",
    "time_note": "20:30 BKK",
    "label": "US jobless claims (weekly)"
-  },
-  {
-   "date": "2026-10-29",
-   "time_note": "19:30 BKK",
-   "label": "US GDP"
-  },
-  {
-   "date": "2026-11-25",
-   "time_note": "20:30 BKK",
-   "label": "US GDP"
-  },
-  {
-   "date": "2026-12-23",
-   "time_note": "20:30 BKK",
-   "label": "US GDP"
   }
  ]
 }
