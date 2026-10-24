@@ -1,5 +1,5 @@
 {
- "fetched_at": "2026-10-24T06:46:58+00:00",
+ "fetched_at": "2026-10-24T11:47:49+00:00",
  "events": [
   {
    "date": "2026-11-10",
@@ -10,16 +10,6 @@
    "date": "2026-12-10",
    "time_note": "20:30 BKK",
    "label": "US inflation (CPI)"
-  },
-  {
-   "date": "2026-11-06",
-   "time_note": "20:30 BKK",
-   "label": "US jobs report (non-farm payrolls)"
-  },
-  {
-   "date": "2026-12-04",
-   "time_note": "20:30 BKK",
-   "label": "US jobs report (non-farm payrolls)"
   },
   {
    "date": "2026-11-17",
@@ -57,19 +47,14 @@
    "label": "US core PCE \u2014 the Fed's preferred inflation gauge"
   },
   {
-   "date": "2026-10-29",
-   "time_note": "19:30 BKK",
-   "label": "US GDP"
+   "date": "2026-11-06",
+   "time_note": "20:30 BKK",
+   "label": "US jobs report (non-farm payrolls)"
   },
   {
-   "date": "2026-11-25",
+   "date": "2026-12-04",
    "time_note": "20:30 BKK",
-   "label": "US GDP"
-  },
-  {
-   "date": "2026-12-23",
-   "time_note": "20:30 BKK",
-   "label": "US GDP"
+   "label": "US jobs report (non-farm payrolls)"
   },
   {
    "date": "2026-10-29",
@@ -120,6 +105,21 @@
    "date": "2026-12-31",
    "time_note": "20:30 BKK",
    "label": "US jobless claims (weekly)"
+  },
+  {
+   "date": "2026-10-29",
+   "time_note": "19:30 BKK",
+   "label": "US GDP"
+  },
+  {
+   "date": "2026-11-25",
+   "time_note": "20:30 BKK",
+   "label": "US GDP"
+  },
+  {
+   "date": "2026-12-23",
+   "time_note": "20:30 BKK",
+   "label": "US GDP"
   }
  ]
 }
