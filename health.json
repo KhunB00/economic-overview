@@ -1,6 +1,6 @@
 {
- "built_at": "2026-10-29T02:02:26+00:00",
- "feeds_ok": 27,
+ "built_at": "2026-10-29T09:13:12+00:00",
+ "feeds_ok": 28,
  "feeds_total": 28,
  "prices_live": 57,
  "prices_total": 57,
@@ -9,10 +9,8 @@
  "cftc_ok": 7,
  "cftc_total": 7,
  "calendar_events": 24,
- "stories": 414,
- "failed_feeds": [
-  "Splash247 (shipping)"
- ],
+ "stories": 422,
+ "failed_feeds": [],
  "feeds_critical_total": 26,
- "feeds_critical_ok": 25
+ "feeds_critical_ok": 26
 }
