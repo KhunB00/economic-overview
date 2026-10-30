@@ -1,6 +1,16 @@
 {
- "fetched_at": "2026-10-30T02:20:03+00:00",
+ "fetched_at": "2026-10-30T09:27:09+00:00",
  "events": [
+  {
+   "date": "2026-11-06",
+   "time_note": "20:30 BKK",
+   "label": "US jobs report (non-farm payrolls)"
+  },
+  {
+   "date": "2026-12-04",
+   "time_note": "20:30 BKK",
+   "label": "US jobs report (non-farm payrolls)"
+  },
   {
    "date": "2026-11-17",
    "time_note": "20:30 BKK",
@@ -10,26 +20,6 @@
    "date": "2026-12-16",
    "time_note": "20:30 BKK",
    "label": "US retail sales"
-  },
-  {
-   "date": "2026-11-10",
-   "time_note": "20:30 BKK",
-   "label": "US inflation (CPI)"
-  },
-  {
-   "date": "2026-12-10",
-   "time_note": "20:30 BKK",
-   "label": "US inflation (CPI)"
-  },
-  {
-   "date": "2026-11-25",
-   "time_note": "20:30 BKK",
-   "label": "US GDP"
-  },
-  {
-   "date": "2026-12-23",
-   "time_note": "20:30 BKK",
-   "label": "US GDP"
   },
   {
    "date": "2026-11-13",
@@ -42,14 +32,34 @@
    "label": "US producer prices (PPI)"
   },
   {
-   "date": "2026-11-06",
+   "date": "2026-11-25",
    "time_note": "20:30 BKK",
-   "label": "US jobs report (non-farm payrolls)"
+   "label": "US GDP"
   },
   {
-   "date": "2026-12-04",
+   "date": "2026-12-23",
    "time_note": "20:30 BKK",
-   "label": "US jobs report (non-farm payrolls)"
+   "label": "US GDP"
+  },
+  {
+   "date": "2026-11-25",
+   "time_note": "20:30 BKK",
+   "label": "US core PCE \u2014 the Fed's preferred inflation gauge"
+  },
+  {
+   "date": "2026-12-23",
+   "time_note": "20:30 BKK",
+   "label": "US core PCE \u2014 the Fed's preferred inflation gauge"
+  },
+  {
+   "date": "2026-11-10",
+   "time_note": "20:30 BKK",
+   "label": "US inflation (CPI)"
+  },
+  {
+   "date": "2026-12-10",
+   "time_note": "20:30 BKK",
+   "label": "US inflation (CPI)"
   },
   {
    "date": "2026-11-05",
@@ -95,16 +105,6 @@
    "date": "2026-12-31",
    "time_note": "20:30 BKK",
    "label": "US jobless claims (weekly)"
-  },
-  {
-   "date": "2026-11-25",
-   "time_note": "20:30 BKK",
-   "label": "US core PCE \u2014 the Fed's preferred inflation gauge"
-  },
-  {
-   "date": "2026-12-23",
-   "time_note": "20:30 BKK",
-   "label": "US core PCE \u2014 the Fed's preferred inflation gauge"
   }
  ]
 }
