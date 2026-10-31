@@ -1,6 +1,6 @@
 {
- "built_at": "2026-10-30T16:27:41+00:00",
- "feeds_ok": 28,
+ "built_at": "2026-10-31T01:57:29+00:00",
+ "feeds_ok": 27,
  "feeds_total": 28,
  "prices_live": 57,
  "prices_total": 57,
@@ -9,8 +9,10 @@
  "cftc_ok": 7,
  "cftc_total": 7,
  "calendar_events": 21,
- "stories": 458,
- "failed_feeds": [],
+ "stories": 427,
+ "failed_feeds": [
+  "Bank of Japan"
+ ],
  "feeds_critical_total": 26,
- "feeds_critical_ok": 26
+ "feeds_critical_ok": 25
 }
