@@ -1,5 +1,5 @@
 {
- "built_at": "2026-11-01T08:34:05+00:00",
+ "built_at": "2026-11-01T15:40:46+00:00",
  "feeds_ok": 28,
  "feeds_total": 28,
  "prices_live": 57,
@@ -9,7 +9,7 @@
  "cftc_ok": 7,
  "cftc_total": 7,
  "calendar_events": 21,
- "stories": 333,
+ "stories": 328,
  "failed_feeds": [],
  "feeds_critical_total": 26,
  "feeds_critical_ok": 26
