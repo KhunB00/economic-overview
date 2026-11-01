@@ -1,6 +1,16 @@
 {
- "fetched_at": "2026-11-01T15:40:43+00:00",
+ "fetched_at": "2026-11-01T20:03:56+00:00",
  "events": [
+  {
+   "date": "2026-11-17",
+   "time_note": "20:30 BKK",
+   "label": "US retail sales"
+  },
+  {
+   "date": "2026-12-16",
+   "time_note": "20:30 BKK",
+   "label": "US retail sales"
+  },
   {
    "date": "2026-11-13",
    "time_note": "20:30 BKK",
@@ -10,6 +20,16 @@
    "date": "2026-12-15",
    "time_note": "20:30 BKK",
    "label": "US producer prices (PPI)"
+  },
+  {
+   "date": "2026-11-25",
+   "time_note": "20:30 BKK",
+   "label": "US core PCE \u2014 the Fed's preferred inflation gauge"
+  },
+  {
+   "date": "2026-12-23",
+   "time_note": "20:30 BKK",
+   "label": "US core PCE \u2014 the Fed's preferred inflation gauge"
   },
   {
    "date": "2026-11-10",
@@ -24,32 +44,12 @@
   {
    "date": "2026-11-25",
    "time_note": "20:30 BKK",
-   "label": "US core PCE \u2014 the Fed's preferred inflation gauge"
-  },
-  {
-   "date": "2026-12-23",
-   "time_note": "20:30 BKK",
-   "label": "US core PCE \u2014 the Fed's preferred inflation gauge"
-  },
-  {
-   "date": "2026-11-25",
-   "time_note": "20:30 BKK",
    "label": "US GDP"
   },
   {
    "date": "2026-12-23",
    "time_note": "20:30 BKK",
    "label": "US GDP"
-  },
-  {
-   "date": "2026-11-17",
-   "time_note": "20:30 BKK",
-   "label": "US retail sales"
-  },
-  {
-   "date": "2026-12-16",
-   "time_note": "20:30 BKK",
-   "label": "US retail sales"
   },
   {
    "date": "2026-11-06",
