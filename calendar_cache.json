@@ -1,6 +1,16 @@
 {
- "fetched_at": "2026-11-05T19:21:08+00:00",
+ "fetched_at": "2026-11-06T03:02:42+00:00",
  "events": [
+  {
+   "date": "2026-11-10",
+   "time_note": "20:30 BKK",
+   "label": "US inflation (CPI)"
+  },
+  {
+   "date": "2026-12-10",
+   "time_note": "20:30 BKK",
+   "label": "US inflation (CPI)"
+  },
   {
    "date": "2026-11-25",
    "time_note": "20:30 BKK",
@@ -40,16 +50,6 @@
    "date": "2026-12-23",
    "time_note": "20:30 BKK",
    "label": "US core PCE \u2014 the Fed's preferred inflation gauge"
-  },
-  {
-   "date": "2026-11-10",
-   "time_note": "20:30 BKK",
-   "label": "US inflation (CPI)"
-  },
-  {
-   "date": "2026-12-10",
-   "time_note": "20:30 BKK",
-   "label": "US inflation (CPI)"
   },
   {
    "date": "2026-11-13",
