@@ -1,5 +1,5 @@
 {
- "fetched_at": "2026-11-12T12:04:12+00:00",
+ "fetched_at": "2026-11-12T20:37:18+00:00",
  "events": [
   {
    "date": "2026-11-13",
@@ -24,22 +24,22 @@
   {
    "date": "2026-11-25",
    "time_note": "20:30 BKK",
-   "label": "US core PCE \u2014 the Fed's preferred inflation gauge"
+   "label": "US GDP"
   },
   {
    "date": "2026-12-23",
    "time_note": "20:30 BKK",
-   "label": "US core PCE \u2014 the Fed's preferred inflation gauge"
+   "label": "US GDP"
   },
   {
    "date": "2026-11-25",
    "time_note": "20:30 BKK",
-   "label": "US GDP"
+   "label": "US core PCE \u2014 the Fed's preferred inflation gauge"
   },
   {
    "date": "2026-12-23",
    "time_note": "20:30 BKK",
-   "label": "US GDP"
+   "label": "US core PCE \u2014 the Fed's preferred inflation gauge"
   },
   {
    "date": "2026-12-10",
@@ -50,11 +50,6 @@
    "date": "2026-12-04",
    "time_note": "20:30 BKK",
    "label": "US jobs report (non-farm payrolls)"
-  },
-  {
-   "date": "2026-11-12",
-   "time_note": "20:30 BKK",
-   "label": "US jobless claims (weekly)"
   },
   {
    "date": "2026-11-19",
