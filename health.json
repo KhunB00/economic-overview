@@ -1,6 +1,6 @@
 {
- "built_at": "2026-11-16T20:48:11+00:00",
- "feeds_ok": 28,
+ "built_at": "2026-11-17T04:55:52+00:00",
+ "feeds_ok": 27,
  "feeds_total": 28,
  "prices_live": 57,
  "prices_total": 57,
@@ -9,8 +9,10 @@
  "cftc_ok": 7,
  "cftc_total": 7,
  "calendar_events": 16,
- "stories": 354,
- "failed_feeds": [],
+ "stories": 325,
+ "failed_feeds": [
+  "Thailand wires"
+ ],
  "feeds_critical_total": 26,
  "feeds_critical_ok": 26
 }
