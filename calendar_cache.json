@@ -1,11 +1,6 @@
 {
- "fetched_at": "2026-11-19T21:08:07+00:00",
+ "fetched_at": "2026-11-20T03:50:12+00:00",
  "events": [
-  {
-   "date": "2026-12-10",
-   "time_note": "20:30 BKK",
-   "label": "US inflation (CPI)"
-  },
   {
    "date": "2026-11-25",
    "time_note": "20:30 BKK",
@@ -35,6 +30,11 @@
    "date": "2026-12-15",
    "time_note": "20:30 BKK",
    "label": "US producer prices (PPI)"
+  },
+  {
+   "date": "2026-12-10",
+   "time_note": "20:30 BKK",
+   "label": "US inflation (CPI)"
   },
   {
    "date": "2026-12-16",
