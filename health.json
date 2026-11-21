@@ -1,5 +1,5 @@
 {
- "built_at": "2026-11-21T03:42:58+00:00",
+ "built_at": "2026-11-21T11:58:40+00:00",
  "feeds_ok": 27,
  "feeds_total": 28,
  "prices_live": 57,
@@ -9,7 +9,7 @@
  "cftc_ok": 7,
  "cftc_total": 7,
  "calendar_events": 14,
- "stories": 398,
+ "stories": 381,
  "failed_feeds": [
   "Bangkok Post Business"
  ],
