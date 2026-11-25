@@ -1,5 +1,5 @@
 {
- "built_at": "2026-11-25T05:12:02+00:00",
+ "built_at": "2026-11-25T16:39:19+00:00",
  "feeds_ok": 26,
  "feeds_total": 28,
  "prices_live": 57,
@@ -9,7 +9,7 @@
  "cftc_ok": 7,
  "cftc_total": 7,
  "calendar_events": 14,
- "stories": 418,
+ "stories": 397,
  "failed_feeds": [
   "Guardian Business",
   "Guardian World"
