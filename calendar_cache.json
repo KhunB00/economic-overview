@@ -1,10 +1,10 @@
 {
- "fetched_at": "2026-11-26T14:39:18+00:00",
+ "fetched_at": "2026-11-26T23:26:19+00:00",
  "events": [
   {
-   "date": "2026-12-04",
+   "date": "2026-12-23",
    "time_note": "20:30 BKK",
-   "label": "US jobs report (non-farm payrolls)"
+   "label": "US GDP"
   },
   {
    "date": "2026-12-23",
@@ -17,14 +17,14 @@
    "label": "US retail sales"
   },
   {
-   "date": "2026-12-23",
-   "time_note": "20:30 BKK",
-   "label": "US GDP"
-  },
-  {
    "date": "2026-12-10",
    "time_note": "20:30 BKK",
    "label": "US inflation (CPI)"
+  },
+  {
+   "date": "2026-12-04",
+   "time_note": "20:30 BKK",
+   "label": "US jobs report (non-farm payrolls)"
   },
   {
    "date": "2026-12-15",
